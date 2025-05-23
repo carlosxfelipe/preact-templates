@@ -47,41 +47,45 @@
           },
           h(
             "div",
-            { class: "w-full flex items-center justify-between p-3" },
+            { class: "w-full h-full flex items-center px-4 justify-between" },
             h(
-              "span",
-              { class: "flex items-center h-full" },
+              "div",
+              { class: "w-[150px] h-[60px] flex items-center flex-shrink-0" },
               h("img", {
                 src: "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/common/logo-1413045634-1607011074-c221a04b0e91152833b139d5757f4ca71607011074.png?0",
                 alt: "Flora Pura",
-                class: "h-[60px]",
+                class: "w-full h-full object-contain",
               })
             ),
             h(
-              "ul",
-              { class: "flex items-center space-x-6" },
-              [
-                ["home", Home, "Início"],
-                ["promo", Tag, "Promoção"],
-                ["about", User, "Quem Somos"],
-                ["contact", Phone, "Contato"],
-                ["products", Briefcase, "Produtos"],
-              ].map(([key, Icon, label]) =>
-                h(
-                  "li",
-                  { class: `border-b ${active(key)}` },
+              "div",
+              { class: "flex-1 flex justify-center" },
+              h(
+                "ul",
+                { class: "flex space-x-6" },
+                [
+                  ["home", "Início"],
+                  ["promo", "Promoção"],
+                  ["about", "Quem Somos"],
+                  ["contact", "Contato"],
+                  ["products", "Produtos"],
+                ].map(([key, label]) =>
                   h(
-                    "button",
-                    {
-                      class: "flex items-center gap-1 focus:outline-none",
-                      onClick: () => setPage(key),
-                    },
-                    h(Icon, { size: 18 }),
-                    h("span", { class: "hidden sm:inline" }, label)
+                    "li",
+                    { class: `border-b ${active(key)}` },
+                    h(
+                      "button",
+                      {
+                        class: "text-base font-medium focus:outline-none",
+                        onClick: () => setPage(key),
+                      },
+                      label
+                    )
                   )
                 )
               )
-            )
+            ),
+            h("div", { class: "w-[150px] h-[60px]" })
           )
         );
       }
