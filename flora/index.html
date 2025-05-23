@@ -9,21 +9,24 @@
       rel="stylesheet"
     />
     <title>Flora Pura On-Line</title>
+    <link
+      rel="icon"
+      href="https://acdn-us.mitiendanube.com/stores/001/448/605/themes/common/logo-535835949-1607011075-b50d639b048ada2ea322c39f11fcc6961607011075.ico?0"
+      type="image/x-icon"
+    />
     <script type="module">
       import { h, render } from "https://esm.sh/preact@10.19.5";
       import { useState, useEffect } from "https://esm.sh/preact@10.19.5/hooks";
       import {
-        Book,
-        Briefcase,
-        FileText,
-        Headphones,
-        Home,
-        LogOut,
+        AtSign,
+        Facebook,
+        Instagram,
+        MapPin,
         Phone,
-        Settings,
-        Shield,
+        Search,
+        Send,
+        ShoppingCart,
         User,
-        Tag,
       } from "https://esm.sh/lucide-preact";
 
       function Navbar({ page, setPage }) {
@@ -91,7 +94,38 @@
                 )
               )
             ),
-            h("div", { class: "w-[150px] h-[60px]" })
+            h(
+              "div",
+              { class: "flex items-center gap-4 w-[300px]" },
+              h(
+                "div",
+                { class: "relative flex-1" },
+                h("input", {
+                  type: "text",
+                  placeholder: "Buscar",
+                  class:
+                    "w-full border-0 border-b border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-500",
+                })
+              ),
+              h(Search, { size: 18, class: "text-gray-700 cursor-pointer" }),
+              h(User, { size: 18, class: "text-gray-700 cursor-pointer" }),
+              h(
+                "div",
+                { class: "relative" },
+                h(ShoppingCart, {
+                  size: 20,
+                  class: "text-gray-700 cursor-pointer",
+                }),
+                h(
+                  "span",
+                  {
+                    class:
+                      "absolute -top-2 -right-2 bg-[#444] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center",
+                  },
+                  "0"
+                )
+              )
+            )
           )
         );
       }
@@ -99,32 +133,145 @@
       function Footer() {
         return h(
           "footer",
-          { class: "bg-white text-black py-4" },
+          { class: "bg-white text-[#6c8042] py-10 text-sm" },
           h(
             "div",
             {
-              class: "w-full flex items-center px-4",
+              class:
+                "w-full px-8 grid grid-cols-1 md:grid-cols-4 gap-x-12 gap-y-6",
             },
             h(
               "div",
-              { class: "flex space-x-4 flex-shrink-0" },
-              [Phone, Briefcase, Headphones, FileText, Shield].map((Icon, i) =>
+              null,
+              h("h4", { class: "font-bold mb-2" }, "NAVEGAÇÃO"),
+              [
+                "Início",
+                "Promoção",
+                "Quem Somos",
+                "Contato",
+                "Produtos",
+                "Corpo",
+                "Cabelo",
+                "Rosto",
+                "Alimentos",
+                "Perfume",
+                "Os Queridinhos",
+              ].map((item) => h("div", { class: "mb-1" }, item))
+            ),
+            h(
+              "div",
+              null,
+              h("h4", { class: "font-bold mb-2" }, "MEIOS DE PAGAMENTO"),
+              h(
+                "div",
+                { class: "flex flex-wrap gap-2 mb-4" },
+                [
+                  "visa",
+                  "mastercard",
+                  "amex",
+                  "diners",
+                  "br/aura",
+                  "br/elo",
+                  "br/hipercard",
+                  "br/discover",
+                  "boleto",
+                  "payment-method-types/pix",
+                ].map((key) =>
+                  h("img", {
+                    src: `https://d26lpennugtm8s.cloudfront.net/assets/common/img/logos/payment/new_logos_payment/${key}@2x.png`,
+                    class: "h-6",
+                  })
+                )
+              ),
+              h("h4", { class: "font-bold mb-2" }, "FORMAS DE ENVIO"),
+              h("img", {
+                src: "https://d26lpennugtm8s.cloudfront.net/assets/common/img/logos/shipping/api/4190@2x.png",
+                class: "h-6 mt-1",
+              })
+            ),
+            h(
+              "div",
+              null,
+              h("h4", { class: "font-bold mb-2" }, "CONTATO"),
+              h(
+                "div",
+                { class: "flex items-start gap-2 mb-1" },
+                h(Phone, { size: 14 }),
+                "85 98690-0505"
+              ),
+              h(
+                "div",
+                { class: "flex items-start gap-2 mb-1" },
+                h(AtSign, { size: 14 }),
+                "florapura.mgv@gmail.com"
+              ),
+              h(
+                "div",
+                { class: "flex items-start gap-2" },
+                h(MapPin, { size: 24 }),
+                h(
+                  "span",
+                  null,
+                  "Rua Monsenhor Bruno, 1153 - sala 823 - Aldeota - Fortaleza - CE"
+                )
+              )
+            ),
+            h(
+              "div",
+              null,
+              h("h4", { class: "font-bold mb-2" }, "REDES SOCIAIS"),
+              h("div", { class: "flex gap-2 mb-4" }, [
                 h(
                   "a",
                   {
                     href: "#",
-                    class: "hover:text-gray-600",
-                    "aria-label": `Icon ${i}`,
+                    class: "bg-[#6c8042] text-white p-2 rounded-full",
                   },
-                  h(Icon, { size: 18 })
+                  h(Instagram, { size: 16 })
+                ),
+                h(
+                  "a",
+                  {
+                    href: "#",
+                    class: "bg-[#6c8042] text-white p-2 rounded-full",
+                  },
+                  h(Facebook, { size: 16 })
+                ),
+              ]),
+              h("h4", { class: "font-bold mb-2" }, "NEWSLETTER"),
+              h(
+                "form",
+                { class: "flex border border-[#6c8042] border-[1px]" },
+                h("input", {
+                  type: "email",
+                  placeholder: "E-mail",
+                  class: "px-2 py-1 flex-1 text-black",
+                }),
+                h(
+                  "button",
+                  {
+                    type: "submit",
+                    class: "bg-[#6c8042] px-3 text-white",
+                  },
+                  h(Send, { size: 16 })
                 )
               )
-            ),
-            h("div", { class: "flex-1" }),
+            )
+          ),
+          h(
+            "div",
+            {
+              class: "flex justify-between items-center mt-6 px-8",
+            },
             h(
               "div",
-              { class: "text-sm text-right" },
-              "Copyright Flora Pura - 33370621000116 - 2025. Todos os direitos reservados."
+              { class: "text-[12px] text-[#000000]" },
+              "criado por carlos"
+            ),
+            h(
+              "div",
+              { class: "text-[10px] text-[#000000] text-right" },
+              "COPYRIGHT FLORA PURA - 33370621000116 - 2025. TODOS OS DIREITOS RESERVADOS."
             )
           )
         );
