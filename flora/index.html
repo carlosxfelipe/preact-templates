@@ -22,6 +22,16 @@
       } from "https://esm.sh/lucide-preact";
 
       function Navbar({ page, setPage }) {
+        const [scrolled, setScrolled] = useState(false);
+
+        useEffect(() => {
+          const handleScroll = () => {
+            setScrolled(window.scrollY > 10);
+          };
+          window.addEventListener("scroll", handleScroll);
+          return () => window.removeEventListener("scroll", handleScroll);
+        }, []);
+
         const active = (key) =>
           key === page
             ? "border-blue-200"
@@ -29,7 +39,11 @@
 
         return h(
           "nav",
-          { class: "bg-white text-black shadow-xl h-[90px]" },
+          {
+            class: `fixed top-0 left-0 right-0 z-50 bg-white text-black h-[90px] transition-shadow duration-300 ${
+              scrolled ? "shadow-md" : ""
+            }`,
+          },
           h(
             "div",
             { class: "w-full flex items-center justify-between p-3" },
@@ -146,8 +160,7 @@
           h(
             "main",
             {
-              class:
-                "min-h-screen px-4 py-6 mt-6 mb-6 bg-white shadow-md rounded-xl max-w-6xl mx-4 lg:mx-auto",
+              class: "pt-[90px] min-h-screen px-4 py-6 bg-white",
             },
             h(PageComponent)
           ),
@@ -159,5 +172,5 @@
     </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
   </head>
-  <body class="bg-gray-100 text-gray-900"></body>
+  <body class="bg-white text-gray-900"></body>
 </html>
