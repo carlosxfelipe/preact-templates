@@ -19,6 +19,7 @@
         Settings,
         Shield,
         User,
+        Tag,
       } from "https://esm.sh/lucide-preact";
 
       function Navbar({ page, setPage }) {
@@ -61,8 +62,10 @@
               { class: "flex items-center space-x-6" },
               [
                 ["home", Home, "Início"],
-                ["classes", Book, "Minhas Aulas"],
-                ["profile", User, "Perfil"],
+                ["promo", Tag, "Promoção"],
+                ["about", User, "Quem Somos"],
+                ["contact", Phone, "Contato"],
+                ["products", Briefcase, "Produtos"],
               ].map(([key, Icon, label]) =>
                 h(
                   "li",
@@ -76,19 +79,6 @@
                     h(Icon, { size: 18 }),
                     h("span", { class: "hidden sm:inline" }, label)
                   )
-                )
-              ),
-              h(
-                "li",
-                { class: "border-b border-transparent hover:border-blue-200" },
-                h(
-                  "button",
-                  {
-                    class: "flex items-center gap-1 focus:outline-none",
-                    onClick: () => alert("Logout simulado"),
-                  },
-                  h(LogOut, { size: 18 }),
-                  h("span", { class: "hidden sm:inline" }, "Sair")
                 )
               )
             )
@@ -134,12 +124,28 @@
         return h("h1", { class: "text-lg font-medium" }, "Bem-vindo ao Início");
       }
 
-      function ClassesPage() {
-        return h("h1", { class: "text-lg font-medium" }, "Suas Aulas");
+      function PromoPage() {
+        return h(
+          "h1",
+          { class: "text-lg font-medium" },
+          "Promoções em destaque"
+        );
       }
 
-      function ProfilePage() {
-        return h("h1", { class: "text-lg font-medium" }, "Seu Perfil");
+      function AboutPage() {
+        return h("h1", { class: "text-lg font-medium" }, "Sobre a Flora Pura");
+      }
+
+      function ContactPage() {
+        return h(
+          "h1",
+          { class: "text-lg font-medium" },
+          "Entre em contato conosco"
+        );
+      }
+
+      function ProductsPage() {
+        return h("h1", { class: "text-lg font-medium" }, "Nossos produtos");
       }
 
       function App() {
@@ -147,10 +153,14 @@
         const PageComponent =
           page === "home"
             ? HomePage
-            : page === "classes"
-            ? ClassesPage
-            : page === "profile"
-            ? ProfilePage
+            : page === "promo"
+            ? PromoPage
+            : page === "about"
+            ? AboutPage
+            : page === "contact"
+            ? ContactPage
+            : page === "products"
+            ? ProductsPage
             : HomePage;
 
         return h(
