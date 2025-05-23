@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1D4ED8" />
+    <title>Unifor Online</title>
+    <script type="module">
+      import { h, render } from "https://esm.sh/preact@10.19.5";
+      import { useState, useEffect } from "https://esm.sh/preact@10.19.5/hooks";
+      import {
+        Book,
+        Briefcase,
+        FileText,
+        Headphones,
+        Home,
+        LogOut,
+        Phone,
+        Settings,
+        Shield,
+        User,
+      } from "https://esm.sh/lucide-preact";
+
+      const UniforLogo = ({ color = "white", height = 24 }) => {
+        const viewBoxWidth = 120.6;
+        const viewBoxHeight = 51.1;
+        const aspectRatio = viewBoxWidth / viewBoxHeight;
+        const computedWidth = height * aspectRatio;
+
+        return h(
+          "svg",
+          {
+            xmlns: "http://www.w3.org/2000/svg",
+            viewBox: "0 0 120.6 51.1",
+            width: computedWidth,
+            height,
+            fill: color,
+          },
+          h(
+            "g",
+            null,
+            h(
+              "g",
+              null,
+              h(
+                "g",
+                null,
+                h("path", {
+                  d: "M45.4,34.2h-6.2c0,0,0,0,0,0c1.5-2.6,2.4-5.7,2.4-9c0-3-0.7-5.8-2-8.2c0,0,0.1,0,0.1,0h5.8 c1.3,0,1.8-1.7,0.8-2.5L25.2,0.6c-1.1-0.8-2.6-0.8-3.8,0L0.6,14.5c-1.1,0.7-0.5,2.5,0.8,2.5h5.8c0,0,0.1,0,0.1,0 c-1.3,2.5-2,5.3-2,8.2c0,3.3,0.9,6.3,2.4,9c0,0,0,0,0,0H1.3c-1.3,0-1.8,1.7-0.8,2.5l20.9,13.9c1.1,0.8,2.6,0.8,3.8,0l20.9-13.9 C47.2,35.9,46.7,34.2,45.4,34.2z M28.8,36.2c-0.1,0.2-0.3,0.2-0.4,0c-0.5-2.3-2.2-4.4-5-4.4s-4.5,2.2-5,4.4c0,0.2-0.3,0.2-0.4,0 c-0.3-0.7-0.4-1.4-0.4-2.2c0-3.2,2.6-5.8,5.8-5.8c3.2,0,5.8,2.6,5.8,5.8C29.3,34.7,29.1,35.5,28.8,36.2z M33.4,33.7 c-0.4,0.9-0.9,1.8-1.6,2.5c-0.2,0.3-0.7,0-0.5-0.3c0,0,0,0,0,0c1.4-4-0.6-8.5-4.6-10.2c-4-1.7-8.6,0.1-10.5,3.9c0,0,0,0,0,0 c-0.1,0.3-0.6,0.2-0.6-0.2c0.1-1,0.3-1.9,0.7-2.9c2-4.7,7.4-6.9,12.2-5C33.2,23.6,35.4,29,33.4,33.7z M37.1,27.4 c-0.1,0.5-0.8,0.5-0.9,0c-0.1-0.8-0.3-1.5-0.6-2.3c-2.3-5.8-9.3-9-15.2-6.7c-5.9,2.3-8.4,9.1-6.1,14.9c0.3,0.8,0.7,1.5,1.1,2.1 c0.3,0.5-0.3,1-0.7,0.6c-1.8-1.4-3.2-3.4-4.1-5.6c-2.8-7.1,0.7-15,7.8-17.8s15.1,0.7,17.9,7.8C37.1,22.8,37.4,25.2,37.1,27.4z",
+                })
+              ),
+              h(
+                "g",
+                null,
+                h("path", {
+                  d: "M69.7,27.7c0,1.2-0.3,2.1-1,2.7c-0.6,0.6-1.5,1-2.7,1c-1.2,0-2.1-0.3-2.7-1c-0.6-0.6-1-1.6-1-2.8V17.3h-2.9v10.6c0,1.3,0.3,2.4,0.8,3.4c0.5,1,1.3,1.7,2.3,2.2c1,0.5,2.1,0.8,3.5,0.8c1.4,0,2.5-0.3,3.5-0.8c1-0.5,1.7-1.3,2.3-2.2c0.5-0.9,0.8-2.1,0.8-3.4V17.3h-2.9V27.7z",
+                }),
+                h("path", {
+                  d: "M81.7,22.4c-0.8,0-1.5,0.2-2.1,0.5c-0.6,0.3-1.1,0.8-1.5,1.3l-0.2-1.5h-2.6V34h2.8v-6.1c0-0.9,0.2-1.6,0.7-2.2c0.5-0.5,1.2-0.8,2-0.8c0.7,0,1.3,0.2,1.7,0.7c0.4,0.5,0.6,1.2,0.6,2.1V34H86V27c0-1.4-0.4-2.6-1.1-3.4C84.2,22.8,83.1,22.4,81.7,22.4z",
+                }),
+                h("path", {
+                  d: "M89.7,17.1c-0.5,0-0.9,0.2-1.2,0.5c-0.3,0.3-0.5,0.7-0.5,1.2c0,0.5,0.2,0.9,0.5,1.2c0.3,0.3,0.7,0.5,1.2,0.5 c0.5,0,0.9-0.2,1.2-0.5c0.3-0.3,0.5-0.7,0.5-1.2c0-0.5-0.2-0.9-0.5-1.2C90.5,17.3,90.1,17.1,89.7,17.1z",
+                }),
+                h("rect", {
+                  x: "88.3",
+                  y: "22.7",
+                  width: "2.8",
+                  height: "11.2",
+                }),
+                h("path", {
+                  d: "M98,17c-0.8,0-1.5,0.1-2.1,0.4c-0.6,0.3-1.1,0.8-1.4,1.4c-0.3,0.6-0.5,1.5-0.5,2.5v1.4h-1.6V25H94V34h2.8V25 h2.7v-2.3h-2.7v-1.4c0-0.6,0.1-1,0.4-1.3c0.2-0.3,0.7-0.5,1.4-0.5c0.2,0,0.3,0,0.5,0c0.2,0,0.3,0,0.5,0v-2.4 c-0.2,0-0.5-0.1-0.7-0.1C98.5,17,98.2,17,98,17z",
+                }),
+                h("path", {
+                  d: "M108.9,23.1c-0.9-0.5-1.9-0.8-3.1-0.8c-1.2,0-2.2,0.3-3.1,0.8c-0.9,0.5-1.6,1.2-2.1,2.1 c-0.5,0.9-0.8,1.9-0.8,3.1c0,1.2,0.3,2.2,0.8,3.1c0.5,0.9,1.2,1.6,2.1,2.1c0.9,0.5,1.9,0.8,3.1,0.8c1.2,0,2.2-0.3,3.1-0.8 c0.9-0.5,1.6-1.2,2.1-2.1c0.5-0.9,0.8-1.9,0.8-3.1c0-1.2-0.3-2.2-0.8-3.1C110.5,24.3,109.8,23.6,108.9,23.1z M108.6,30.1 c-0.3,0.5-0.7,0.9-1.1,1.2c-0.5,0.3-1,0.4-1.7,0.4s-1.2-0.1-1.7-0.4c-0.5-0.3-0.9-0.7-1.1-1.2c-0.3-0.5-0.4-1.1-0.4-1.8 c0-0.7,0.1-1.3,0.4-1.8c0.3-0.5,0.7-0.9,1.1-1.2c0.5-0.3,1-0.4,1.7-0.4s1.2,0.1,1.7,0.4c0.5,0.3,0.9,0.7,1.1,1.2 c0.3,0.5,0.4,1.1,0.4,1.8C109,29,108.9,29.6,108.6,30.1z",
+                }),
+                h("path", {
+                  d: "M119.9,22.6c-0.2,0-0.4,0-0.6,0c-0.9,0-1.6,0.2-2.2,0.7c-0.4,0.3-0.7,0.7-0.9,1.2l-0.2-1.7h-2.6V34h2.8v-5.5 c0-1.1,0.3-1.9,0.9-2.4c0.6-0.5,1.4-0.8,2.4-0.8h1v-2.6C120.4,22.6,120.1,22.6,119.9,22.6z",
+                })
+              )
+            )
+          )
+        );
+      };
+
+      function Navbar() {
+        const [pathname, setPathname] = useState(location.pathname);
+        const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+        const [user, setUser] = useState(() =>
+          JSON.parse(localStorage.getItem("user") || "null")
+        );
+
+        const logout = () => {
+          localStorage.removeItem("authenticated");
+          localStorage.removeItem("user");
+          setUser(null);
+          location.href = "/login";
+        };
+
+        const active = (path) =>
+          path === pathname
+            ? "border-blue-200"
+            : "border-transparent hover:border-blue-200";
+
+        useEffect(() => {
+          const handleResize = () => setIsMobile(window.innerWidth < 640);
+          window.addEventListener("resize", handleResize);
+          return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
+        return h(
+          "nav",
+          { class: "bg-blue-700 text-white shadow-xl" },
+          h(
+            "div",
+            { class: "w-full flex items-center justify-between p-3" },
+            h(
+              "span",
+              { class: "flex items-center text-2xl font-bold tracking-wide" },
+              h(UniforLogo, { height: isMobile ? 30 : 40 }),
+              !isMobile && h("span", { class: "ml-2" }, "Online")
+            ),
+            h(
+              "ul",
+              { class: "flex items-center space-x-6" },
+              [
+                ["/home", Home, "Início"],
+                ["/classes", Book, "Minhas Aulas"],
+                ["/profile", User, "Perfil"],
+              ].map(([path, Icon, label]) =>
+                h(
+                  "li",
+                  { class: `border-b ${active(path)}` },
+                  h(
+                    "a",
+                    { href: path, class: "flex items-center gap-1" },
+                    h(Icon, { size: 18 }),
+                    h("span", { class: "hidden sm:inline" }, label)
+                  )
+                )
+              ),
+              h(
+                "li",
+                { class: "border-b border-transparent hover:border-blue-200" },
+                h(
+                  "button",
+                  {
+                    class: "flex items-center gap-1 focus:outline-none",
+                    onClick: logout,
+                  },
+                  h(LogOut, { size: 18 }),
+                  h("span", { class: "hidden sm:inline" }, "Sair")
+                )
+              ),
+              user?.isAdmin &&
+                h(
+                  "li",
+                  { class: `border-b ${active("/admin")}` },
+                  h(
+                    "a",
+                    { href: "/admin", class: "flex items-center gap-1" },
+                    h(Settings, { size: 18 }),
+                    h("span", { class: "hidden sm:inline" }, "Admin")
+                  )
+                )
+            )
+          )
+        );
+      }
+
+      function Footer() {
+        return h(
+          "footer",
+          { class: "bg-blue-700 text-white py-4" },
+          h(
+            "div",
+            {
+              class:
+                "max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between",
+            },
+            h(
+              "div",
+              { class: "flex space-x-4" },
+              [Phone, Briefcase, Headphones, FileText, Shield].map((Icon, i) =>
+                h(
+                  "a",
+                  {
+                    href: "#",
+                    class: "hover:text-gray-300",
+                    "aria-label": `Icon ${i}`,
+                  },
+                  h(Icon, { size: 18 })
+                )
+              )
+            ),
+            h(
+              "div",
+              {
+                class:
+                  "text-center text-sm leading-5 mt-4 md:mt-0 md:flex-1 md:px-8",
+              },
+              h(
+                "p",
+                null,
+                "Fundação Edson Queiroz | Universidade de Fortaleza"
+              ),
+              h(
+                "p",
+                null,
+                "Central de Atendimento: (85) 3477-3000 | (85) 99246-6625 (WhatsApp)"
+              ),
+              h(
+                "p",
+                null,
+                "Av. Washington Soares, 1321 - Edson Queiroz - CEP 60811-905 - Fortaleza / CE - Brasil"
+              )
+            ),
+            h("div", { class: "mt-4 md:mt-0" }, h(UniforLogo, { height: 50 }))
+          )
+        );
+      }
+
+      function App() {
+        return h(
+          "div",
+          null,
+          h(Navbar),
+          h(
+            "main",
+            {
+              class:
+                "min-h-screen px-4 py-6 mt-6 mb-6 bg-white shadow-md rounded-xl max-w-6xl mx-4 lg:mx-auto",
+            },
+            h(
+              "div",
+              {
+                class:
+                  "text-center text-lg sm:text-xl font-semibold py-10 text-gray-700",
+              },
+              "Este é um template inicial usando Preact + CDN + Tailwind."
+            )
+          ),
+          h(Footer)
+        );
+      }
+
+      render(h(App), document.body);
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  </head>
+  <body class="bg-gray-100 text-gray-900"></body>
+</html>
