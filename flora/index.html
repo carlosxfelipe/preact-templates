@@ -39,8 +39,8 @@
 
         const active = (key) =>
           key === page
-            ? "border-y-2 border-[#AEAEAE] text-[#AEAEAE]"
-            : "border-y-2 border-transparent hover:border-[#AEAEAE] hover:text-[#AEAEAE]";
+            ? "border-y border-[#AEAEAE] text-[#AEAEAE]"
+            : "border-y border-transparent hover:border-[#AEAEAE] hover:text-[#AEAEAE]";
 
         return h(
           "nav",
@@ -80,7 +80,7 @@
                     h(
                       "button",
                       {
-                        class: `text-base font-medium uppercase px-2 py-1 transition-colors duration-200 ${active(
+                        class: `text-xs font-medium uppercase px-2 py-2.5 transition-colors duration-200 ${active(
                           key
                         )}`,
                         onClick: () => setPage(key),
