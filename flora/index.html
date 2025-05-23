@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <title>Flora Pura On-Line</title>
+    <script type="module">
+      import { h, render } from "https://esm.sh/preact@10.19.5";
+      import { useState, useEffect } from "https://esm.sh/preact@10.19.5/hooks";
+      import {
+        Book,
+        Briefcase,
+        FileText,
+        Headphones,
+        Home,
+        LogOut,
+        Phone,
+        Settings,
+        Shield,
+        User,
+      } from "https://esm.sh/lucide-preact";
+
+      function Navbar({ page, setPage }) {
+        const active = (key) =>
+          key === page
+            ? "border-blue-200"
+            : "border-transparent hover:border-blue-200";
+
+        return h(
+          "nav",
+          { class: "bg-white text-black shadow-xl h-[90px]" },
+          h(
+            "div",
+            { class: "w-full flex items-center justify-between p-3" },
+            h(
+              "span",
+              { class: "flex items-center h-full" },
+              h("img", {
+                src: "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/common/logo-1413045634-1607011074-c221a04b0e91152833b139d5757f4ca71607011074.png?0",
+                alt: "Flora Pura",
+                class: "h-[60px]",
+              })
+            ),
+            h(
+              "ul",
+              { class: "flex items-center space-x-6" },
+              [
+                ["home", Home, "Início"],
+                ["classes", Book, "Minhas Aulas"],
+                ["profile", User, "Perfil"],
+              ].map(([key, Icon, label]) =>
+                h(
+                  "li",
+                  { class: `border-b ${active(key)}` },
+                  h(
+                    "button",
+                    {
+                      class: "flex items-center gap-1 focus:outline-none",
+                      onClick: () => setPage(key),
+                    },
+                    h(Icon, { size: 18 }),
+                    h("span", { class: "hidden sm:inline" }, label)
+                  )
+                )
+              ),
+              h(
+                "li",
+                { class: "border-b border-transparent hover:border-blue-200" },
+                h(
+                  "button",
+                  {
+                    class: "flex items-center gap-1 focus:outline-none",
+                    onClick: () => alert("Logout simulado"),
+                  },
+                  h(LogOut, { size: 18 }),
+                  h("span", { class: "hidden sm:inline" }, "Sair")
+                )
+              )
+            )
+          )
+        );
+      }
+
+      function Footer() {
+        return h(
+          "footer",
+          { class: "bg-white text-black py-4" },
+          h(
+            "div",
+            {
+              class: "w-full flex items-center px-4",
+            },
+            h(
+              "div",
+              { class: "flex space-x-4 flex-shrink-0" },
+              [Phone, Briefcase, Headphones, FileText, Shield].map((Icon, i) =>
+                h(
+                  "a",
+                  {
+                    href: "#",
+                    class: "hover:text-gray-600",
+                    "aria-label": `Icon ${i}`,
+                  },
+                  h(Icon, { size: 18 })
+                )
+              )
+            ),
+            h("div", { class: "flex-1" }),
+            h(
+              "div",
+              { class: "text-sm text-right" },
+              "Copyright Flora Pura - 33370621000116 - 2025. Todos os direitos reservados."
+            )
+          )
+        );
+      }
+
+      function HomePage() {
+        return h("h1", { class: "text-lg font-medium" }, "Bem-vindo ao Início");
+      }
+
+      function ClassesPage() {
+        return h("h1", { class: "text-lg font-medium" }, "Suas Aulas");
+      }
+
+      function ProfilePage() {
+        return h("h1", { class: "text-lg font-medium" }, "Seu Perfil");
+      }
+
+      function App() {
+        const [page, setPage] = useState("home");
+        const PageComponent =
+          page === "home"
+            ? HomePage
+            : page === "classes"
+            ? ClassesPage
+            : page === "profile"
+            ? ProfilePage
+            : HomePage;
+
+        return h(
+          "div",
+          null,
+          h(Navbar, { page, setPage }),
+          h(
+            "main",
+            {
+              class:
+                "min-h-screen px-4 py-6 mt-6 mb-6 bg-white shadow-md rounded-xl max-w-6xl mx-4 lg:mx-auto",
+            },
+            h(PageComponent)
+          ),
+          h(Footer)
+        );
+      }
+
+      render(h(App), document.body);
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  </head>
+  <body class="bg-gray-100 text-gray-900"></body>
+</html>
