@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FFFFFF" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <title>Flora Pura On-Line</title>
     <script type="module">
       import { h, render } from "https://esm.sh/preact@10.19.5";
@@ -35,8 +39,8 @@
 
         const active = (key) =>
           key === page
-            ? "border-blue-200"
-            : "border-transparent hover:border-blue-200";
+            ? "border-y-2 border-[#AEAEAE] text-[#AEAEAE]"
+            : "border-y-2 border-transparent hover:border-[#AEAEAE] hover:text-[#AEAEAE]";
 
         return h(
           "nav",
@@ -72,11 +76,13 @@
                 ].map(([key, label]) =>
                   h(
                     "li",
-                    { class: `border-b ${active(key)}` },
+                    null,
                     h(
                       "button",
                       {
-                        class: "text-base font-medium focus:outline-none",
+                        class: `text-base font-medium uppercase px-2 py-1 transition-colors duration-200 ${active(
+                          key
+                        )}`,
                         onClick: () => setPage(key),
                       },
                       label
@@ -186,5 +192,5 @@
     </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
   </head>
-  <body class="bg-white text-gray-900"></body>
+  <body class="bg-white text-gray-900 font-[Montserrat]"></body>
 </html>
