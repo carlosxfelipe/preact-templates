@@ -72,19 +72,28 @@
           setLoading(true);
 
           try {
+            // Seleciona as últimas 6 mensagens (ou menos, se houver)
+            const maxHistory = 6;
+            const recentMessages = messages.slice(-maxHistory);
+
+            // Converte para o formato esperado pela API
+            const contents = [
+              ...recentMessages.map((msg) => ({
+                role: msg.sender === "user" ? "user" : "model",
+                parts: [{ text: msg.text }],
+              })),
+              {
+                role: "user",
+                parts: [{ text: input }],
+              },
+            ];
+
             const res = await fetch(
               "https://gemini-chat-7d5w.onrender.com/gemini/chat/psychologist",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  contents: [
-                    {
-                      role: "user",
-                      parts: [{ text: input }],
-                    },
-                  ],
-                }),
+                body: JSON.stringify({ contents }),
               }
             );
 
