@@ -12,14 +12,28 @@
       body {
         font-family: sans-serif;
         background-color: #ece5dd;
+        margin: 0;
+      }
+
+      :root {
+        --app-height: 100vh;
       }
     </style>
+    <script>
+      window.addEventListener("resize", () => {
+        document.documentElement.style.setProperty(
+          "--app-height",
+          `${window.innerHeight}px`
+        );
+      });
+      document.documentElement.style.setProperty(
+        "--app-height",
+        `${window.innerHeight}px`
+      );
+    </script>
   </head>
-  <body class="h-screen w-screen">
-    <div
-      id="app"
-      class="h-full w-full max-w-md mx-auto shadow-md bg-[#ece5dd]"
-    ></div>
+  <body class="w-full" style="height: var(--app-height)">
+    <div id="app" class="w-full h-full flex flex-col bg-[#ece5dd]"></div>
 
     <script type="module">
       const { h, render } = preact;
@@ -89,10 +103,10 @@
         };
 
         return html`
-          <div class="flex flex-col h-screen">
+          <div class="flex flex-col w-full h-full">
             <!-- Header -->
             <div
-              class="bg-[#075E54] text-white px-4 py-3 shadow flex items-center gap-3"
+              class="bg-[#075E54] text-white px-4 py-3 shadow flex items-center gap-3 w-full"
             >
               <img
                 src="https://files.fiis.com.br/uploads/FIIs-obras-construcao-6.jpg"
@@ -114,7 +128,7 @@
             </div>
 
             <!-- Chat Area -->
-            <div class="flex-1 overflow-y-auto px-2 py-3 space-y-2">
+            <div class="flex-1 overflow-y-auto px-2 py-3 space-y-2 w-full">
               ${messages.map(
                 (msg) =>
                   html`<div
@@ -135,7 +149,9 @@
             </div>
 
             <!-- Input Bar -->
-            <div class="bg-[#f0f0f0] p-2 flex items-center gap-2">
+            <div
+              class="bg-[#f0f0f0] p-2 flex items-center gap-2 sticky bottom-0 w-full z-10"
+            >
               <input
                 class="flex-1 rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none"
                 placeholder="Digite uma mensagem"
