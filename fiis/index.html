@@ -32,6 +32,18 @@
         const [loading, setLoading] = useState(false);
         const messagesEndRef = useRef(null);
 
+        const getGreeting = () => {
+          const hour = new Date().getHours();
+          if (hour < 12) return "Bom dia!";
+          if (hour < 18) return "Boa tarde!";
+          return "Boa noite!";
+        };
+
+        useEffect(() => {
+          const greeting = getGreeting();
+          setMessages([{ sender: "bot", text: greeting }]);
+        }, []);
+
         useEffect(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, [messages]);
