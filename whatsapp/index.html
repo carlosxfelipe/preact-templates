@@ -12,29 +12,20 @@
     <style>
       body {
         font-family: sans-serif;
-        background-color: #ece5dd;
         margin: 0;
       }
 
       :root {
-        --app-height: 100vh;
+        --app-height: 100svh;
       }
     </style>
-    <script>
-      window.addEventListener("resize", () => {
-        document.documentElement.style.setProperty(
-          "--app-height",
-          `${window.innerHeight}px`
-        );
-      });
-      document.documentElement.style.setProperty(
-        "--app-height",
-        `${window.innerHeight}px`
-      );
-    </script>
   </head>
-  <body class="w-full" style="height: var(--app-height)">
-    <div id="app" class="w-full h-full flex flex-col bg-[#ece5dd]"></div>
+  <body class="w-full">
+    <div
+      id="app"
+      class="w-full relative flex flex-col"
+      style="min-height: 100svh; height: var(--app-height)"
+    ></div>
 
     <script type="module">
       const { h, render } = preact;
@@ -47,16 +38,20 @@
         const [loading, setLoading] = useState(false);
         const messagesEndRef = useRef(null);
 
+        const hour = new Date().getHours();
+        const isNight = hour >= 18 || hour < 5;
+
         const getGreeting = () => {
-          const hour = new Date().getHours();
-          if (hour < 12) return "Bom dia!";
-          if (hour < 18) return "Boa tarde!";
+          if (hour >= 5 && hour < 12) return "Bom dia!";
+          if (hour >= 12 && hour < 18) return "Boa tarde!";
           return "Boa noite!";
         };
 
         useEffect(() => {
           const greeting = getGreeting();
-          setMessages([{ sender: "bot", text: greeting }]);
+          setMessages([
+            { sender: "bot", text: greeting, timestamp: new Date() },
+          ]);
         }, []);
 
         useEffect(() => {
@@ -66,7 +61,12 @@
         const sendMessage = async () => {
           if (!input.trim()) return;
 
-          const userMsg = { sender: "user", text: input };
+          const userMsg = {
+            sender: "user",
+            text: input,
+            timestamp: new Date(),
+          };
+
           setMessages((prev) => [...prev, userMsg]);
           setInput("");
           setLoading(true);
@@ -92,11 +92,19 @@
             const reply =
               data.candidates?.[0]?.content?.parts?.[0]?.text ||
               "Desculpe, não consegui responder.";
-            setMessages((prev) => [...prev, { sender: "bot", text: reply }]);
+
+            setMessages((prev) => [
+              ...prev,
+              { sender: "bot", text: reply, timestamp: new Date() },
+            ]);
           } catch (e) {
             setMessages((prev) => [
               ...prev,
-              { sender: "bot", text: "Erro ao conectar com o servidor." },
+              {
+                sender: "bot",
+                text: "Erro ao conectar com o servidor.",
+                timestamp: new Date(),
+              },
             ]);
           } finally {
             setLoading(false);
@@ -104,10 +112,14 @@
         };
 
         return html`
-          <div class="flex flex-col w-full h-full">
+          <div
+            class=${`flex flex-col w-full h-[var(--app-height)] ${
+              isNight ? "bg-[#121B22] text-white" : "bg-[#ece5dd] text-black"
+            }`}
+          >
             <!-- Header -->
             <div
-              class="bg-[#075E54] text-white px-4 py-3 shadow flex items-center gap-3 w-full"
+              class="bg-[#075E54] text-white px-4 py-3 shadow flex items-center gap-3 w-full shrink-0"
             >
               <img
                 src="https://files.fiis.com.br/uploads/FIIs-obras-construcao-6.jpg"
@@ -129,7 +141,9 @@
             </div>
 
             <!-- Chat Area -->
-            <div class="flex-1 overflow-y-auto px-2 py-3 space-y-2 w-full">
+            <div
+              class="flex-1 overflow-y-auto px-2 pt-3 pb-24 scroll-pb-24 space-y-2 w-full"
+            >
               ${messages.map(
                 (msg) =>
                   html`<div
@@ -139,10 +153,24 @@
                   >
                     <div
                       class="${msg.sender === "user"
-                        ? "bg-[#dcf8c6] text-black rounded-[18px] rounded-br-none"
-                        : "bg-white text-black rounded-[18px] rounded-bl-none"} px-3 py-2 max-w-[75%] text-[15px] shadow-sm whitespace-pre-line"
+                        ? `${
+                            isNight
+                              ? "bg-[#005C4B] text-white"
+                              : "bg-[#dcf8c6] text-black"
+                          } rounded-[18px] rounded-br-none`
+                        : `${
+                            isNight
+                              ? "bg-[#202C33] text-white"
+                              : "bg-white text-black"
+                          } rounded-[18px] rounded-bl-none`} px-3 py-2 max-w-[75%] text-[15px] shadow-sm whitespace-pre-line relative"
                     >
-                      ${msg.text}
+                      <div>${msg.text}</div>
+                      <div class="text-xs opacity-60 mt-1 text-right">
+                        ${new Date(msg.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
                     </div>
                   </div>`
               )}
@@ -151,10 +179,14 @@
 
             <!-- Input Bar -->
             <div
-              class="bg-[#f0f0f0] p-2 flex items-center gap-2 sticky bottom-0 w-full z-10"
+              class="${`p-2 flex items-center gap-2 w-full z-10 ${
+                isNight ? "bg-[#1E2A30]" : "bg-[#f0f0f0]"
+              } sticky bottom-0 pb-[calc(env(safe-area-inset-bottom)+8px)]`}"
             >
               <input
-                class="flex-1 rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none"
+                class="flex-1 rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none ${isNight
+                  ? "bg-[#263238] text-white"
+                  : "text-black"}"
                 placeholder="Digite uma mensagem"
                 value=${input}
                 onInput=${(e) => setInput(e.target.value)}
@@ -171,6 +203,24 @@
           </div>
         `;
       }
+
+      const setAppHeight = () => {
+        const height = window.visualViewport
+          ? window.visualViewport.height
+          : window.innerHeight;
+
+        document.documentElement.style.setProperty(
+          "--app-height",
+          `${height}px`
+        );
+        document.getElementById("app").style.height = `${height}px`;
+      };
+
+      window.addEventListener("resize", setAppHeight);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", setAppHeight);
+      }
+      setAppHeight();
 
       render(h(ChatApp), document.getElementById("app"));
     </script>
