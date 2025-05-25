@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#075E54" />
-    <title>FIIs, Fiagros, FI-Infra</title>
+    <title>Sofia — Assistente Psicóloga</title>
     <script src="https://unpkg.com/preact@latest/dist/preact.umd.js"></script>
     <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
     <script src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"></script>
@@ -73,7 +73,7 @@
 
           try {
             const res = await fetch(
-              "https://gemini-chat-7d5w.onrender.com/gemini/chat/investment-advisor",
+              "https://gemini-chat-7d5w.onrender.com/gemini/chat/psychologist",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -122,21 +122,15 @@
               class="bg-[#075E54] text-white px-4 py-3 shadow flex items-center gap-3 w-full shrink-0"
             >
               <img
-                src="https://files.fiis.com.br/uploads/FIIs-obras-construcao-6.jpg"
-                alt="Grupo WhatsApp"
+                src="https://img.freepik.com/fotos-premium/retrato-de-uma-jovem-psicologa-trabalhando-em-sua-pratica-criada-com-ia-generativa_762026-22014.jpg"
+                alt="Sofia, a Psicóloga Virtual"
                 class="w-10 h-10 rounded-full object-cover"
               />
               <div class="flex flex-col">
-                <div class="text-base font-semibold">
-                  FIIs, Fiagros, FI-Infra
-                </div>
-                <a
-                  href="https://chat.whatsapp.com/J1vbuJYUqpj4gZCiws94Ul"
-                  target="_blank"
-                  class="text-sm text-white underline opacity-80 hover:opacity-100"
-                >
-                  Entrar no grupo do WhatsApp
-                </a>
+                <div class="text-base font-semibold">Sofia</div>
+                <span class="text-sm opacity-80 text-sm">
+                  Conversas sobre saúde emocional e espiritualidade.
+                </span>
               </div>
             </div>
 
