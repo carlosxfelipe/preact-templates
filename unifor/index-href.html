@@ -82,11 +82,22 @@
         );
       };
 
-      function Navbar({ page, setPage }) {
+      function Navbar() {
+        const [pathname, setPathname] = useState(location.pathname);
         const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+        const [user, setUser] = useState(() =>
+          JSON.parse(localStorage.getItem("user") || "null")
+        );
 
-        const active = (key) =>
-          key === page
+        const logout = () => {
+          localStorage.removeItem("authenticated");
+          localStorage.removeItem("user");
+          setUser(null);
+          location.href = "/login";
+        };
+
+        const active = (path) =>
+          path === pathname
             ? "border-blue-200"
             : "border-transparent hover:border-blue-200";
 
@@ -112,19 +123,16 @@
               "ul",
               { class: "flex items-center space-x-6" },
               [
-                ["home", Home, "Início"],
-                ["classes", Book, "Minhas Aulas"],
-                ["profile", User, "Perfil"],
-              ].map(([key, Icon, label]) =>
+                ["/home", Home, "Início"],
+                ["/classes", Book, "Minhas Aulas"],
+                ["/profile", User, "Perfil"],
+              ].map(([path, Icon, label]) =>
                 h(
                   "li",
-                  { class: `border-b ${active(key)}` },
+                  { class: `border-b ${active(path)}` },
                   h(
-                    "button",
-                    {
-                      class: "flex items-center gap-1 focus:outline-none",
-                      onClick: () => setPage(key),
-                    },
+                    "a",
+                    { href: path, class: "flex items-center gap-1" },
                     h(Icon, { size: 18 }),
                     h("span", { class: "hidden sm:inline" }, label)
                   )
@@ -137,12 +145,23 @@
                   "button",
                   {
                     class: "flex items-center gap-1 focus:outline-none",
-                    onClick: () => alert("Logout simulado"),
+                    onClick: logout,
                   },
                   h(LogOut, { size: 18 }),
                   h("span", { class: "hidden sm:inline" }, "Sair")
                 )
-              )
+              ),
+              user?.isAdmin &&
+                h(
+                  "li",
+                  { class: `border-b ${active("/admin")}` },
+                  h(
+                    "a",
+                    { href: "/admin", class: "flex items-center gap-1" },
+                    h(Settings, { size: 18 }),
+                    h("span", { class: "hidden sm:inline" }, "Admin")
+                  )
+                )
             )
           )
         );
@@ -200,40 +219,22 @@
         );
       }
 
-      function HomePage() {
-        return h("h1", { class: "text-lg font-medium" }, "Bem-vindo ao Início");
-      }
-
-      function ClassesPage() {
-        return h("h1", { class: "text-lg font-medium" }, "Suas Aulas");
-      }
-
-      function ProfilePage() {
-        return h("h1", { class: "text-lg font-medium" }, "Seu Perfil");
-      }
-
       function App() {
-        const [page, setPage] = useState("home");
-        const PageComponent =
-          page === "home"
-            ? HomePage
-            : page === "classes"
-            ? ClassesPage
-            : page === "profile"
-            ? ProfilePage
-            : HomePage;
-
         return h(
           "div",
           null,
-          h(Navbar, { page, setPage }),
+          h(Navbar),
           h(
             "main",
             {
               class:
                 "min-h-screen px-4 py-6 mt-6 mb-6 bg-white shadow-md rounded-xl max-w-6xl mx-4 lg:mx-auto",
             },
-            h(PageComponent)
+            h(
+              "h1",
+              { class: "text-lg font-medium text-gray-700" },
+              "Bem-vindo ao Início"
+            )
           ),
           h(Footer)
         );

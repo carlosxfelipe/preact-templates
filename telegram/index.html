@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0088cc" />
+    <title>Moema — Assistente da UNIFOR</title>
+    <script src="https://unpkg.com/preact@latest/dist/preact.umd.js"></script>
+    <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+    <script src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+
+      :root {
+        --app-height: 100svh;
+      }
+    </style>
+  </head>
+  <body class="w-full">
+    <div
+      id="app"
+      class="w-full relative flex flex-col"
+      style="min-height: 100svh; height: var(--app-height)"
+    ></div>
+
+    <script type="module">
+      const { h, render } = preact;
+      const { useState, useRef, useEffect } = preactHooks;
+      const html = htm.bind(h);
+
+      function ChatApp() {
+        const [messages, setMessages] = useState([]);
+        const [input, setInput] = useState("");
+        const [loading, setLoading] = useState(false);
+        const messagesEndRef = useRef(null);
+
+        const hour = new Date().getHours();
+        const isNight = hour >= 18 || hour < 5;
+
+        const getGreeting = () => {
+          if (hour >= 5 && hour < 12) return "Bom dia!";
+          if (hour >= 12 && hour < 18) return "Boa tarde!";
+          return "Boa noite!";
+        };
+
+        useEffect(() => {
+          const greeting = getGreeting();
+          setMessages([
+            { sender: "bot", text: greeting, timestamp: new Date() },
+          ]);
+        }, []);
+
+        useEffect(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, [messages]);
+
+        const sendMessage = async () => {
+          if (!input.trim()) return;
+
+          const userMsg = {
+            sender: "user",
+            text: input,
+            timestamp: new Date(),
+          };
+
+          setMessages((prev) => [...prev, userMsg]);
+          setInput("");
+          setLoading(true);
+
+          try {
+            const maxHistory = 6;
+            const recentMessages = messages.slice(-maxHistory);
+
+            const contents = [
+              ...recentMessages.map((msg) => ({
+                role: msg.sender === "user" ? "user" : "model",
+                parts: [{ text: msg.text }],
+              })),
+              {
+                role: "user",
+                parts: [{ text: input }],
+              },
+            ];
+
+            const res = await fetch(
+              "https://gemini-chat-7d5w.onrender.com/gemini/chat/moema",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents }),
+              }
+            );
+
+            const data = await res.json();
+            const reply =
+              data.candidates?.[0]?.content?.parts?.[0]?.text ||
+              "Desculpe, não consegui responder.";
+
+            setMessages((prev) => [
+              ...prev,
+              { sender: "bot", text: reply, timestamp: new Date() },
+            ]);
+          } catch (e) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                sender: "bot",
+                text: "Erro ao conectar com o servidor.",
+                timestamp: new Date(),
+              },
+            ]);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return html`
+          <div
+            class=${`flex flex-col w-full h-[var(--app-height)] ${
+              isNight ? "bg-[#1f1f1f] text-white" : "bg-[#eaeaea] text-black"
+            }`}
+          >
+            <!-- Header -->
+            <div
+              class="bg-[#0088cc] text-white px-4 py-3 shadow flex items-center gap-3 w-full shrink-0"
+            >
+              <img
+                src="https://pbs.twimg.com/profile_images/1777800502220107776/Bn7BrHTm_400x400.jpg"
+                alt="Moema, Assistente Virtual da UNIFOR"
+                class="w-10 h-10 rounded-full object-cover"
+              />
+              <div class="flex flex-col">
+                <div class="text-base font-semibold">Moema</div>
+                <span class="text-sm opacity-80 text-sm">
+                  Moema, assistente virtual da UNIFOR — tire suas dúvidas sobre
+                  a universidade.
+                </span>
+              </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div
+              class="flex-1 overflow-y-auto px-2 pt-3 pb-24 scroll-pb-24 space-y-2 w-full"
+            >
+              ${messages.map(
+                (msg) =>
+                  html`<div
+                    class="flex ${msg.sender === "user"
+                      ? "justify-end"
+                      : "justify-start"}"
+                  >
+                    <div
+                      class="${msg.sender === "user"
+                        ? `${
+                            isNight
+                              ? "bg-[#3390ec] text-white"
+                              : "bg-[#0088cc] text-white"
+                          } rounded-[18px] rounded-br-none`
+                        : `${
+                            isNight
+                              ? "bg-[#2a2a2a] text-white"
+                              : "bg-white text-black"
+                          } rounded-[18px] rounded-bl-none`} px-3 py-2 max-w-[75%] text-[15px] shadow-sm whitespace-pre-line relative"
+                    >
+                      <div>${msg.text}</div>
+                      <div class="text-xs opacity-60 mt-1 text-right">
+                        ${new Date(msg.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </div>`
+              )}
+              <div ref=${messagesEndRef}></div>
+            </div>
+
+            <!-- Input Bar -->
+            <div
+              class="${`p-2 flex items-center gap-2 w-full z-10 ${
+                isNight ? "bg-[#2a2a2a]" : "bg-[#f5f5f5]"
+              } sticky bottom-0 pb-[calc(env(safe-area-inset-bottom)+8px)]`}"
+            >
+              <input
+                class="flex-1 rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none ${isNight
+                  ? "bg-[#3b3b3b] text-white"
+                  : "bg-white text-black"}"
+                placeholder="Digite uma mensagem"
+                value=${input}
+                onInput=${(e) => setInput(e.target.value)}
+                onKeyDown=${(e) => e.key === "Enter" && sendMessage()}
+              />
+              <button
+                class="text-white bg-[#0088cc] px-4 py-2 rounded-full disabled:opacity-50"
+                onClick=${sendMessage}
+                disabled=${loading}
+              >
+                ${loading ? "..." : "Enviar"}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const setAppHeight = () => {
+        const height = window.visualViewport
+          ? window.visualViewport.height
+          : window.innerHeight;
+
+        document.documentElement.style.setProperty(
+          "--app-height",
+          `${height}px`
+        );
+        document.getElementById("app").style.height = `${height}px`;
+      };
+
+      window.addEventListener("resize", setAppHeight);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", setAppHeight);
+      }
+      setAppHeight();
+
+      render(h(ChatApp), document.getElementById("app"));
+    </script>
+  </body>
+</html>
