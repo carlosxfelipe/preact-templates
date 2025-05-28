@@ -20,6 +20,7 @@
       import {
         AtSign,
         Facebook,
+        Github,
         Instagram,
         MapPin,
         Phone,
@@ -76,6 +77,12 @@
                   ["about", "Quem Somos"],
                   ["contact", "Contato"],
                   ["products", "Produtos"],
+                  ["body", "Corpo"],
+                  ["hair", "Cabelo"],
+                  ["face", "Rosto"],
+                  ["food", "Alimentos"],
+                  ["perfume", "Perfume"],
+                  ["favorites", "Os Queridinhos"],
                 ].map(([key, label]) =>
                   h(
                     "li",
@@ -131,6 +138,15 @@
       }
 
       function Footer() {
+        const [isMobile, setIsMobile] = useState(false);
+
+        useEffect(() => {
+          const handleResize = () => setIsMobile(window.innerWidth < 640);
+          handleResize();
+          window.addEventListener("resize", handleResize);
+          return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
         return h(
           "footer",
           { class: "bg-white text-[#6c8042] py-10 text-sm" },
@@ -261,18 +277,57 @@
           h(
             "div",
             {
-              class: "flex justify-between items-center mt-6 px-8",
+              class: `mt-6 px-8 ${
+                isMobile ? "text-center" : "flex justify-between items-center"
+              }`,
             },
-            h(
-              "div",
-              { class: "text-[12px] text-[#000000]" },
-              "criado por carlos"
-            ),
-            h(
-              "div",
-              { class: "text-[10px] text-[#000000] text-right" },
-              "COPYRIGHT FLORA PURA - 33370621000116 - 2025. TODOS OS DIREITOS RESERVADOS."
-            )
+            isMobile
+              ? h(
+                  "div",
+                  {
+                    class:
+                      "flex flex-col items-center justify-center text-center gap-1",
+                  },
+                  [
+                    h(
+                      "div",
+                      { class: "text-[10px] text-[#000000]" },
+                      "COPYRIGHT FLORA PURA - 33370621000116 - 2025. TODOS OS DIREITOS RESERVADOS."
+                    ),
+                    h(
+                      "a",
+                      {
+                        href: "https://github.com/carlosxfelipe",
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        class:
+                          "flex items-center gap-1 text-[12px] text-[#000000] no-underline hover:text-[#555555] transition-colors",
+                      },
+                      [
+                        "criado por Carlos Felipe Araújo",
+                        h(Github, { size: 14 }),
+                      ]
+                    ),
+                  ]
+                )
+              : [
+                  h(
+                    "a",
+                    {
+                      href: "https://github.com/carlosxfelipe",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      class:
+                        "flex items-center gap-1 text-[12px] text-[#000000] no-underline hover:text-[#555555] transition-colors",
+                    },
+                    ["criado por Carlos Felipe Araújo", h(Github, { size: 14 })]
+                  ),
+                  h(
+                    "div",
+                    { class: "text-[10px] text-[#000000] text-right" },
+                    "COPYRIGHT FLORA PURA - 33370621000116 - 2025. TODOS OS DIREITOS RESERVADOS."
+                  ),
+                ]
           )
         );
       }
