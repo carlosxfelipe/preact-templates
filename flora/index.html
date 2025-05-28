@@ -23,6 +23,7 @@
         Github,
         Instagram,
         MapPin,
+        Menu,
         Phone,
         Search,
         Send,
@@ -69,7 +70,7 @@
         return h(
           "nav",
           {
-            class: `fixed top-0 left-0 right-0 z-50 bg-white text-black h-[90px] transition-shadow duration-300 ${
+            class: `fixed top-0 left-0 right-0 z-50 bg-white text-black py-4 transition-shadow duration-300 ${
               scrolled ? "shadow-md" : ""
             }`,
           },
@@ -118,9 +119,17 @@
                 "button",
                 {
                   onClick: () => setMenuOpen(!menuOpen),
-                  class: "text-gray-700 text-xl px-2 py-2",
+                  class:
+                    "flex items-center gap-2 text-gray-700 text-sm px-2 py-2",
                 },
-                "≡"
+                [
+                  h(Menu, { size: 24 }),
+                  h(
+                    "span",
+                    { class: "text-[10px] font-medium uppercase" },
+                    "Menu"
+                  ),
+                ]
               ),
             h(
               "div",
