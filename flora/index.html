@@ -114,23 +114,6 @@
                   )
                 )
               ),
-            isMobile &&
-              h(
-                "button",
-                {
-                  onClick: () => setMenuOpen(!menuOpen),
-                  class:
-                    "flex items-center gap-2 text-gray-700 text-sm px-2 py-2",
-                },
-                [
-                  h(Menu, { size: 24 }),
-                  h(
-                    "span",
-                    { class: "text-[10px] font-medium uppercase" },
-                    "Menu"
-                  ),
-                ]
-              ),
             h(
               "div",
               { class: "flex items-center gap-4 w-[300px]" },
@@ -161,7 +144,24 @@
                   },
                   "0"
                 )
-              )
+              ),
+              isMobile &&
+                h(
+                  "button",
+                  {
+                    onClick: () => setMenuOpen(!menuOpen),
+                    class:
+                      "flex items-center gap-2 text-gray-700 text-sm px-2 py-2",
+                  },
+                  [
+                    h(Menu, { size: 24 }),
+                    h(
+                      "span",
+                      { class: "text-[10px] font-medium uppercase" },
+                      "Menu"
+                    ),
+                  ]
+                )
             )
           ),
           menuOpen &&
