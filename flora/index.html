@@ -32,14 +32,34 @@
 
       function Navbar({ page, setPage }) {
         const [scrolled, setScrolled] = useState(false);
+        const [isMobile, setIsMobile] = useState(false);
+        const [menuOpen, setMenuOpen] = useState(false);
 
         useEffect(() => {
-          const handleScroll = () => {
-            setScrolled(window.scrollY > 10);
-          };
+          const handleScroll = () => setScrolled(window.scrollY > 10);
+          const handleResize = () => setIsMobile(window.innerWidth < 1024);
+          handleResize();
           window.addEventListener("scroll", handleScroll);
-          return () => window.removeEventListener("scroll", handleScroll);
+          window.addEventListener("resize", handleResize);
+          return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleResize);
+          };
         }, []);
+
+        const navItems = [
+          ["home", "Início"],
+          ["promo", "Promoção"],
+          ["about", "Quem Somos"],
+          ["contact", "Contato"],
+          ["products", "Produtos"],
+          ["body", "Corpo"],
+          ["hair", "Cabelo"],
+          ["face", "Rosto"],
+          ["food", "Alimentos"],
+          ["perfume", "Perfume"],
+          ["favorites", "Os Queridinhos"],
+        ];
 
         const active = (key) =>
           key === page
@@ -65,42 +85,43 @@
                 class: "w-full h-full object-contain",
               })
             ),
-            h(
-              "div",
-              { class: "flex-1 flex justify-center" },
+            !isMobile &&
               h(
-                "ul",
-                { class: "flex space-x-6" },
-                [
-                  ["home", "Início"],
-                  ["promo", "Promoção"],
-                  ["about", "Quem Somos"],
-                  ["contact", "Contato"],
-                  ["products", "Produtos"],
-                  ["body", "Corpo"],
-                  ["hair", "Cabelo"],
-                  ["face", "Rosto"],
-                  ["food", "Alimentos"],
-                  ["perfume", "Perfume"],
-                  ["favorites", "Os Queridinhos"],
-                ].map(([key, label]) =>
-                  h(
-                    "li",
-                    null,
+                "div",
+                { class: "flex-1 flex justify-center" },
+                h(
+                  "ul",
+                  {
+                    class:
+                      "flex flex-wrap justify-center gap-x-6 gap-y-2 max-w-full",
+                  },
+                  navItems.map(([key, label]) =>
                     h(
-                      "button",
-                      {
-                        class: `text-xs font-medium uppercase px-2 py-2.5 transition-colors duration-200 ${active(
-                          key
-                        )}`,
-                        onClick: () => setPage(key),
-                      },
-                      label
+                      "li",
+                      null,
+                      h(
+                        "button",
+                        {
+                          class: `text-xs font-medium uppercase px-2 py-2.5 transition-colors duration-200 ${active(
+                            key
+                          )}`,
+                          onClick: () => setPage(key),
+                        },
+                        label
+                      )
                     )
                   )
                 )
-              )
-            ),
+              ),
+            isMobile &&
+              h(
+                "button",
+                {
+                  onClick: () => setMenuOpen(!menuOpen),
+                  class: "text-gray-700 text-xl px-2 py-2",
+                },
+                "≡"
+              ),
             h(
               "div",
               { class: "flex items-center gap-4 w-[300px]" },
@@ -133,7 +154,30 @@
                 )
               )
             )
-          )
+          ),
+          menuOpen &&
+            h(
+              "div",
+              {
+                class:
+                  "absolute top-[90px] left-0 w-full bg-white shadow-md flex flex-col items-start px-4 py-2 z-50",
+              },
+              navItems.map(([key, label]) =>
+                h(
+                  "button",
+                  {
+                    class: `text-sm py-2 text-left w-full border-b border-gray-100 ${active(
+                      key
+                    )}`,
+                    onClick: () => {
+                      setMenuOpen(false);
+                      setPage(key);
+                    },
+                  },
+                  label
+                )
+              )
+            )
         );
       }
 
