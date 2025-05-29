@@ -37,6 +37,7 @@
         const [isLargeScreen, setIsLargeScreen] = useState(
           () => window.innerWidth >= 1280
         );
+        const [showSearch, setShowSearch] = useState(false);
 
         useEffect(() => {
           const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -73,7 +74,7 @@
         const active = (key) =>
           key === page
             ? "border-y border-[#AEAEAE] text-[#AEAEAE]"
-            : "border-y border-transparent hover:border-[#AEAEAE] hover:text-[#AEAEAE]";
+            : "border-y border-transparent hover:text-[#AEAEAE]";
 
         return h(
           "nav",
@@ -128,18 +129,29 @@
               ),
             h(
               "div",
-              { class: "flex items-center gap-4 w-[300px]" },
-              h(
-                "div",
-                { class: "relative flex-1" },
-                h("input", {
-                  type: "text",
-                  placeholder: "Buscar",
-                  class:
-                    "w-full border-0 border-b border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-500",
-                })
-              ),
-              h(Search, { size: 18, class: "text-gray-700 cursor-pointer" }),
+              {
+                class: `flex items-center gap-4 ${
+                  isMobile && !showSearch ? "w-auto" : "w-[300px]"
+                }`,
+              },
+              (!isMobile || showSearch) &&
+                h(
+                  "div",
+                  { class: "relative flex-1" },
+                  h("input", {
+                    type: "text",
+                    placeholder: "Buscar",
+                    class:
+                      "w-full border-0 border-b border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200",
+                  })
+                ),
+              h(Search, {
+                size: 18,
+                class: "text-gray-700 cursor-pointer",
+                onClick: () => {
+                  if (isMobile) setShowSearch(!showSearch);
+                },
+              }),
               h(User, { size: 18, class: "text-gray-700 cursor-pointer" }),
               h(
                 "div",
