@@ -15,7 +15,7 @@
       type="image/x-icon"
     />
     <script type="module">
-      import { h, render } from "https://esm.sh/preact@10.19.5";
+      import { Fragment, h, render } from "https://esm.sh/preact@10.19.5";
       import { useState, useEffect } from "https://esm.sh/preact@10.19.5/hooks";
       import {
         AtSign,
@@ -29,6 +29,7 @@
         Send,
         ShoppingCart,
         User,
+        X,
       } from "https://esm.sh/lucide-preact";
 
       function Navbar({ page, setPage, isMobile }) {
@@ -189,29 +190,46 @@
             )
           ),
           menuOpen &&
-            h(
-              "div",
-              {
-                class: `absolute ${
-                  isMobile ? "top-[60px]" : "top-[90px]"
-                } left-0 w-full bg-white shadow-md flex flex-col items-start px-4 py-2 z-50`,
-              },
-              navItems.map(([key, label]) =>
-                h(
-                  "button",
-                  {
-                    class: `text-sm py-2 text-left w-full border-b border-gray-100 ${active(
-                      key
-                    )}`,
-                    onClick: () => {
-                      setMenuOpen(false);
-                      setPage(key);
+            h(Fragment, null, [
+              h("div", {
+                class: "fixed inset-0 bg-black opacity-30 z-40",
+                onClick: () => setMenuOpen(false),
+              }),
+              h(
+                "div",
+                {
+                  class:
+                    "fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white shadow-lg flex flex-col items-start px-4 py-6 z-50 transition-transform",
+                },
+                [
+                  h(
+                    "button",
+                    {
+                      onClick: () => setMenuOpen(false),
+                      class: "self-end mb-4 ml-auto text-gray-700",
+                      "aria-label": "Fechar menu",
                     },
-                  },
-                  label
-                )
-              )
-            )
+                    h(X, { size: 24 })
+                  ),
+                  ...fullNavItems.map(([key, label]) =>
+                    h(
+                      "button",
+                      {
+                        key,
+                        class: `text-sm py-2 text-left w-full border-b border-gray-100 ${active(
+                          key
+                        )}`,
+                        onClick: () => {
+                          setMenuOpen(false);
+                          setPage(key);
+                        },
+                      },
+                      label
+                    )
+                  ),
+                ]
+              ),
+            ])
         );
       }
 
