@@ -34,6 +34,9 @@
       function Navbar({ page, setPage, isMobile }) {
         const [scrolled, setScrolled] = useState(false);
         const [menuOpen, setMenuOpen] = useState(false);
+        const [isLargeScreen, setIsLargeScreen] = useState(
+          () => window.innerWidth >= 1280
+        );
 
         useEffect(() => {
           const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -41,7 +44,7 @@
           return () => window.removeEventListener("scroll", handleScroll);
         }, []);
 
-        const navItems = [
+        const fullNavItems = [
           ["home", "Início"],
           ["promo", "Promoção"],
           ["about", "Quem Somos"],
@@ -54,6 +57,18 @@
           ["perfume", "Perfume"],
           ["favorites", "Os Queridinhos"],
         ];
+
+        useEffect(() => {
+          const handleResize = () => {
+            setIsLargeScreen(window.innerWidth >= 1280);
+          };
+          handleResize();
+          window.addEventListener("resize", handleResize);
+          return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
+        const navItems =
+          window.innerWidth >= 1280 ? fullNavItems : fullNavItems.slice(0, 5);
 
         const active = (key) =>
           key === page
@@ -91,7 +106,7 @@
                   "ul",
                   {
                     class:
-                      "flex flex-wrap justify-center gap-x-6 gap-y-2 max-w-full",
+                      "flex flex-nowrap justify-center gap-x-6 overflow-x-auto max-w-full",
                   },
                   navItems.map(([key, label]) =>
                     h(
@@ -413,9 +428,7 @@
 
       function App() {
         const [page, setPage] = useState("home");
-        const [isMobile, setIsMobile] = useState(
-          () => window.innerWidth < 1024
-        );
+        const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
         const PageComponent =
           page === "home"
@@ -431,7 +444,7 @@
             : HomePage;
 
         useEffect(() => {
-          const handleResize = () => setIsMobile(window.innerWidth < 1024);
+          const handleResize = () => setIsMobile(window.innerWidth < 768);
           handleResize();
           window.addEventListener("resize", handleResize);
           return () => window.removeEventListener("resize", handleResize);
