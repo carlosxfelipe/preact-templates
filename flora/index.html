@@ -31,21 +31,14 @@
         User,
       } from "https://esm.sh/lucide-preact";
 
-      function Navbar({ page, setPage }) {
+      function Navbar({ page, setPage, isMobile }) {
         const [scrolled, setScrolled] = useState(false);
-        const [isMobile, setIsMobile] = useState(false);
         const [menuOpen, setMenuOpen] = useState(false);
 
         useEffect(() => {
           const handleScroll = () => setScrolled(window.scrollY > 10);
-          const handleResize = () => setIsMobile(window.innerWidth < 1024);
-          handleResize();
           window.addEventListener("scroll", handleScroll);
-          window.addEventListener("resize", handleResize);
-          return () => {
-            window.removeEventListener("scroll", handleScroll);
-            window.removeEventListener("resize", handleResize);
-          };
+          return () => window.removeEventListener("scroll", handleScroll);
         }, []);
 
         const navItems = [
@@ -70,16 +63,20 @@
         return h(
           "nav",
           {
-            class: `fixed top-0 left-0 right-0 z-50 bg-white text-black py-4 transition-shadow duration-300 ${
-              scrolled ? "shadow-md" : ""
-            }`,
+            class: `fixed top-0 left-0 right-0 z-50 bg-white text-black ${
+              isMobile ? "py-2" : "py-4"
+            } transition-shadow duration-300 ${scrolled ? "shadow-md" : ""}`,
           },
           h(
             "div",
             { class: "w-full h-full flex items-center px-4 justify-between" },
             h(
               "div",
-              { class: "w-[150px] h-[60px] flex items-center flex-shrink-0" },
+              {
+                class: `w-[150px] ${
+                  isMobile ? "h-[40px]" : "h-[60px]"
+                } flex items-center flex-shrink-0`,
+              },
               h("img", {
                 src: "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/common/logo-1413045634-1607011074-c221a04b0e91152833b139d5757f4ca71607011074.png?0",
                 alt: "Flora Pura",
@@ -99,7 +96,7 @@
                   navItems.map(([key, label]) =>
                     h(
                       "li",
-                      null,
+                      { key },
                       h(
                         "button",
                         {
@@ -168,8 +165,9 @@
             h(
               "div",
               {
-                class:
-                  "absolute top-[90px] left-0 w-full bg-white shadow-md flex flex-col items-start px-4 py-2 z-50",
+                class: `absolute ${
+                  isMobile ? "top-[60px]" : "top-[90px]"
+                } left-0 w-full bg-white shadow-md flex flex-col items-start px-4 py-2 z-50`,
               },
               navItems.map(([key, label]) =>
                 h(
@@ -277,7 +275,7 @@
               h(
                 "div",
                 { class: "flex items-start gap-2" },
-                h(MapPin, { size: 24 }),
+                h(MapPin, { size: 14 }),
                 h(
                   "span",
                   null,
@@ -415,6 +413,10 @@
 
       function App() {
         const [page, setPage] = useState("home");
+        const [isMobile, setIsMobile] = useState(
+          () => window.innerWidth < 1024
+        );
+
         const PageComponent =
           page === "home"
             ? HomePage
@@ -428,14 +430,23 @@
             ? ProductsPage
             : HomePage;
 
+        useEffect(() => {
+          const handleResize = () => setIsMobile(window.innerWidth < 1024);
+          handleResize();
+          window.addEventListener("resize", handleResize);
+          return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
         return h(
           "div",
           null,
-          h(Navbar, { page, setPage }),
+          h(Navbar, { page, setPage, isMobile }),
           h(
             "main",
             {
-              class: "pt-[90px] min-h-screen px-4 py-6 bg-white",
+              class: `${
+                isMobile ? "pt-[64px]" : "pt-[96px]"
+              } min-h-screen px-4 py-6 bg-white`,
             },
             h(PageComponent)
           ),
