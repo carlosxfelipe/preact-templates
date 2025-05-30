@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="theme-color" content="#6c8042" />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
       rel="stylesheet"
@@ -86,20 +86,27 @@
           },
           h(
             "div",
-            { class: "w-full h-full flex items-center px-4 justify-between" },
-            h(
-              "div",
-              {
-                class: `w-[150px] ${
-                  isMobile ? "h-[40px]" : "h-[60px]"
-                } flex items-center flex-shrink-0`,
-              },
-              h("img", {
-                src: "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/common/logo-1413045634-1607011074-c221a04b0e91152833b139d5757f4ca71607011074.png?0",
-                alt: "Flora Pura",
-                class: "w-full h-full object-contain",
-              })
-            ),
+            {
+              class:
+                "w-full h-full flex items-center pl-0 pr-4 sm:pl-4 justify-between",
+            },
+            // LOGO
+            !isMobile || !showSearch
+              ? h(
+                  "div",
+                  {
+                    class: `${
+                      isMobile ? "h-[40px]" : "h-[60px]"
+                    } flex items-center flex-shrink-0 w-auto`,
+                  },
+                  h("img", {
+                    src: "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/common/logo-1413045634-1607011074-c221a04b0e91152833b139d5757f4ca71607011074.png?0",
+                    alt: "Flora Pura",
+                    class: "w-full h-full object-contain",
+                  })
+                )
+              : null,
+            // MENU (desktop)
             !isMobile &&
               h(
                 "div",
@@ -128,67 +135,77 @@
                   )
                 )
               ),
-            h(
-              "div",
-              {
-                class: `flex items-center gap-4 ${
-                  isMobile && !showSearch ? "w-auto" : "w-[300px]"
-                }`,
-              },
-              (!isMobile || showSearch) &&
-                h(
-                  "div",
-                  { class: "relative flex-1" },
+            // SEARCH + ICONS
+            isMobile && showSearch
+              ? h("div", { class: "flex items-center w-full px-4 gap-2" }, [
                   h("input", {
                     type: "text",
                     placeholder: "Buscar",
                     class:
-                      "w-full border-0 border-b border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200",
-                  })
-                ),
-              h(Search, {
-                size: 18,
-                class: "text-gray-700 cursor-pointer",
-                onClick: () => {
-                  if (isMobile) setShowSearch(!showSearch);
-                },
-              }),
-              h(User, { size: 18, class: "text-gray-700 cursor-pointer" }),
-              h(
-                "div",
-                { class: "relative" },
-                h(ShoppingCart, {
-                  size: 20,
-                  class: "text-gray-700 cursor-pointer",
-                }),
-                h(
-                  "span",
-                  {
-                    class:
-                      "absolute -top-2 -right-2 bg-[#444] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center",
-                  },
-                  "0"
-                )
-              ),
-              isMobile &&
-                h(
-                  "button",
-                  {
-                    onClick: () => setMenuOpen(!menuOpen),
-                    class:
-                      "flex items-center gap-2 text-gray-700 text-sm px-2 py-2",
-                  },
-                  [
-                    h(Menu, { size: 24 }),
+                      "flex-1 border-0 border-b border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200",
+                  }),
+                  h(Search, {
+                    size: 18,
+                    class: "text-gray-700 cursor-pointer",
+                    onClick: () => setShowSearch(false),
+                  }),
+                ])
+              : h("div", { class: "flex items-center gap-4" }, [
+                  !isMobile &&
+                    h(
+                      "div",
+                      { class: "relative flex-1 max-w-[300px]" },
+                      h("input", {
+                        type: "text",
+                        placeholder: "Buscar",
+                        class:
+                          "w-full border-0 border-b border-gray-300 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200",
+                      })
+                    ),
+                  h(Search, {
+                    size: 18,
+                    class: "text-gray-700 cursor-pointer",
+                    onClick: () => {
+                      if (isMobile) setShowSearch(true);
+                    },
+                  }),
+                  h(User, { size: 18, class: "text-gray-700 cursor-pointer" }),
+                  h(
+                    "div",
+                    { class: "relative" },
+                    h(ShoppingCart, {
+                      size: 20,
+                      class: "text-gray-700 cursor-pointer",
+                    }),
                     h(
                       "span",
-                      { class: "text-[10px] font-medium uppercase" },
-                      "Menu"
+                      {
+                        class:
+                          "absolute -top-2 -right-2 bg-[#444] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center",
+                      },
+                      "0"
+                    )
+                  ),
+                  isMobile &&
+                    h(
+                      "button",
+                      {
+                        onClick: () => setMenuOpen(!menuOpen),
+                        class:
+                          "flex items-center gap-2 text-gray-700 text-sm px-2 py-2",
+                      },
+                      [
+                        h(Menu, { size: 24 }),
+                        h(
+                          "span",
+                          { class: "text-[10px] font-medium uppercase" },
+                          "Menu"
+                        ),
+                      ]
                     ),
-                  ]
-                )
-            )
+                ])
           ),
+          // MOBILE MENU
           menuOpen &&
             h(Fragment, null, [
               h("div", {
@@ -429,7 +446,40 @@
       }
 
       function HomePage() {
-        return h("h1", { class: "text-lg font-medium" }, "Bem-vindo ao Início");
+        const images = [
+          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1699634834586-4909726330-58921bf692b5030847be1f59f3a593df1699634836-1920-1920.jpg?98795400",
+          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1627484122829-4423780113-188201cdedc22ed040d612c70090ae721627484130-1920-1920.png?98795400",
+          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1611606502484-7762946843-3eac86253ae955b7f205b45537cfa8641611606509-1920-1920.jpg?98795400",
+        ];
+
+        return h("div", { class: "space-y-4" }, [
+          h(
+            "div",
+            {
+              class:
+                "bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 text-sm rounded",
+            },
+            [
+              h(
+                "p",
+                null,
+                "⚠️ Esta não é a página oficial da Flora Pura. Este é um clone criado exclusivamente para fins acadêmicos, como proposta de um painel administrativo em desenvolvimento. Acesse a página oficial em "
+              ),
+              h(
+                "a",
+                {
+                  href: "https://florapuraonline.com/",
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  class: "underline text-blue-600 hover:text-blue-800",
+                },
+                "florapuraonline.com"
+              ),
+              ".",
+            ]
+          ),
+          h("h1", { class: "text-lg font-medium" }, "Bem-vindo ao Início"),
+        ]);
       }
 
       function PromoPage() {
