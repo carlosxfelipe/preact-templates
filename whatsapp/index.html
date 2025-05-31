@@ -121,6 +121,13 @@
           }
         };
 
+        function linkify(text) {
+          const urlRegex = /(\bhttps?:\/\/[^\s)>\]]+)/g;
+          return text.replace(urlRegex, (url) => {
+            return `<a href="${url}" class="underline text-blue-600" target="_blank" rel="noopener noreferrer">${url}</a>`;
+          });
+        }
+
         return html`
           <div
             class=${`flex flex-col w-full h-[var(--app-height)] ${
@@ -171,7 +178,7 @@
                         ? html`<div>${msg.text}</div>`
                         : html`<div
                             dangerouslySetInnerHTML=${{
-                              __html: marked.parseInline(msg.text),
+                              __html: marked.parseInline(linkify(msg.text)),
                             }}
                           ></div>`}
                       <div class="text-xs opacity-60 mt-1 text-right">
