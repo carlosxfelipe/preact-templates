@@ -173,7 +173,7 @@
                         ? html`<div>${msg.text}</div>`
                         : html`<div
                             dangerouslySetInnerHTML=${{
-                              __html: marked.parse(msg.text),
+                              __html: marked.parseInline(msg.text),
                             }}
                           ></div>`}
                       <div class="text-xs opacity-60 mt-1 text-right">

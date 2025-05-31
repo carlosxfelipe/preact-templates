@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
     <script src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
       body {
         font-family: sans-serif;
@@ -147,27 +148,32 @@
             <div
               class="flex-1 overflow-y-auto px-2 pt-3 pb-24 scroll-pb-24 space-y-2 w-full"
             >
-              ${messages.map(
-                (msg) =>
-                  html`<div
-                    class="flex ${msg.sender === "user"
-                      ? "justify-end"
-                      : "justify-start"}"
-                  >
+              ${messages.map((msg) => {
+                const isUser = msg.sender === "user";
+                const bubbleStyle = isUser
+                  ? isNight
+                    ? "bg-[#005C4B] text-white"
+                    : "bg-[#dcf8c6] text-black"
+                  : isNight
+                  ? "bg-[#202C33] text-white"
+                  : "bg-white text-black";
+
+                const bubbleClass = isUser
+                  ? "rounded-[18px] rounded-br-none"
+                  : "rounded-[18px] rounded-bl-none";
+
+                return html`
+                  <div class="flex ${isUser ? "justify-end" : "justify-start"}">
                     <div
-                      class="${msg.sender === "user"
-                        ? `${
-                            isNight
-                              ? "bg-[#005C4B] text-white"
-                              : "bg-[#dcf8c6] text-black"
-                          } rounded-[18px] rounded-br-none`
-                        : `${
-                            isNight
-                              ? "bg-[#202C33] text-white"
-                              : "bg-white text-black"
-                          } rounded-[18px] rounded-bl-none`} px-3 py-2 max-w-[75%] text-[15px] shadow-sm whitespace-pre-line relative"
+                      class="${bubbleStyle} ${bubbleClass} px-3 py-2 max-w-[75%] text-[15px] shadow-sm whitespace-pre-line relative"
                     >
-                      <div>${msg.text}</div>
+                      ${isUser
+                        ? html`<div>${msg.text}</div>`
+                        : html`<div
+                            dangerouslySetInnerHTML=${{
+                              __html: marked.parseInline(msg.text),
+                            }}
+                          ></div>`}
                       <div class="text-xs opacity-60 mt-1 text-right">
                         ${new Date(msg.timestamp).toLocaleTimeString([], {
                           hour: "2-digit",
@@ -175,8 +181,9 @@
                         })}
                       </div>
                     </div>
-                  </div>`
-              )}
+                  </div>
+                `;
+              })}
               <div ref=${messagesEndRef}></div>
             </div>
 
