@@ -32,6 +32,68 @@
         X,
       } from "https://esm.sh/lucide-preact";
 
+      function Carousel({ images }) {
+        const [current, setCurrent] = useState(0);
+
+        useEffect(() => {
+          const interval = setInterval(() => {
+            setCurrent((prev) => (prev + 1) % images.length);
+          }, 3000);
+          return () => clearInterval(interval);
+        }, [images.length]);
+
+        const generateSrcSet = (url) => {
+          return `
+      ${url.replace(/-1920-1920/, "-480-0")} 480w,
+      ${url.replace(/-1920-1920/, "-640-0")} 640w,
+      ${url.replace(/-1920-1920/, "-1024-1024")} 1024w,
+      ${url} 1920w
+    `;
+        };
+
+        return h(
+          "div",
+          {
+            class: "w-full overflow-hidden relative",
+            style: { height: "620px" },
+          },
+          [
+            h(
+              "div",
+              {
+                class: "w-full h-full transition-transform duration-700",
+              },
+              h("img", {
+                src: images[current],
+                alt: `Slide ${current + 1}`,
+                width: 1400,
+                height: 620,
+                srcSet: generateSrcSet(images[current]),
+                sizes: "(max-width: 768px) 100vw, 1400px",
+                class: "w-full h-full object-cover",
+                loading: "lazy",
+              })
+            ),
+            h(
+              "div",
+              {
+                class:
+                  "absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2",
+              },
+              images.map((_, i) =>
+                h("button", {
+                  onClick: () => setCurrent(i),
+                  class: `w-3 h-3 rounded-full ${
+                    current === i ? "bg-white" : "bg-gray-400"
+                  }`,
+                  "aria-label": `Ir para slide ${i + 1}`,
+                })
+              )
+            ),
+          ]
+        );
+      }
+
       function Navbar({ page, setPage, isMobile }) {
         const [scrolled, setScrolled] = useState(false);
         const [menuOpen, setMenuOpen] = useState(false);
@@ -447,12 +509,20 @@
 
       function HomePage() {
         const images = [
-          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1699634834586-4909726330-58921bf692b5030847be1f59f3a593df1699634836-1920-1920.jpg?98795400",
-          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1627484122829-4423780113-188201cdedc22ed040d612c70090ae721627484130-1920-1920.png?98795400",
-          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1611606502484-7762946843-3eac86253ae955b7f205b45537cfa8641611606509-1920-1920.jpg?98795400",
+          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1699634834586-4909726330-58921bf692b5030847be1f59f3a593df1699634836-1920-1920.jpg",
+          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1627484122829-4423780113-188201cdedc22ed040d612c70090ae721627484130-1920-1920.png",
+          "https://acdn-us.mitiendanube.com/stores/001/448/605/themes/new_linkedman/1-slide-1611606502484-7762946843-3eac86253ae955b7f205b45537cfa8641611606509-1920-1920.jpg",
         ];
 
         return h("div", { class: "space-y-4" }, [
+          h(
+            "div",
+            {
+              class:
+                "w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]",
+            },
+            h(Carousel, { images })
+          ),
           h(
             "div",
             {
