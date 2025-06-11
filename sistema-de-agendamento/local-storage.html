@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sistema de Agendamento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f8f9fa;
+      }
+      .card {
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://cdn.jsdelivr.net/npm/preact@10.19.2/dist/preact.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/preact@10.19.2/hooks/dist/hooks.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const { h, render } = window.preact;
+      const { useState, useEffect } = window.preactHooks;
+      const html = window.htm.bind(h);
+
+      // Helpers para localStorage
+      function salvarNoStorage(chave, dados) {
+        localStorage.setItem(chave, JSON.stringify(dados));
+      }
+      function lerDoStorage(chave) {
+        const dados = localStorage.getItem(chave);
+        return dados ? JSON.parse(dados) : [];
+      }
+      function gerarId(lista) {
+        return lista.length ? Math.max(...lista.map((item) => item.id)) + 1 : 1;
+      }
+
+      // Usuários
+      async function fetchUsuarios() {
+        return lerDoStorage("usuarios");
+      }
+      async function adicionarUsuario(usuario) {
+        const usuarios = lerDoStorage("usuarios");
+        const novo = { ...usuario, id: gerarId(usuarios) };
+        usuarios.push(novo);
+        salvarNoStorage("usuarios", usuarios);
+        return novo;
+      }
+      async function editarUsuario(id, dados) {
+        const usuarios = lerDoStorage("usuarios").map((u) =>
+          u.id == id ? { ...u, ...dados } : u
+        );
+        salvarNoStorage("usuarios", usuarios);
+        return usuarios.find((u) => u.id == id);
+      }
+      async function excluirUsuario(id) {
+        const usuarios = lerDoStorage("usuarios").filter((u) => u.id != id);
+        salvarNoStorage("usuarios", usuarios);
+        const ags = lerDoStorage("agendamentos").filter(
+          (a) => a.usuarioId != id
+        );
+        salvarNoStorage("agendamentos", ags);
+      }
+
+      // Agendamentos
+      async function fetchAgendamentos() {
+        return lerDoStorage("agendamentos");
+      }
+      async function adicionarAgendamento(agendamento) {
+        const ags = lerDoStorage("agendamentos");
+        const novo = { ...agendamento, id: gerarId(ags) };
+        ags.push(novo);
+        salvarNoStorage("agendamentos", ags);
+        return novo;
+      }
+      async function editarAgendamento(id, dados) {
+        const ags = lerDoStorage("agendamentos").map((a) =>
+          a.id == id ? { ...a, ...dados } : a
+        );
+        salvarNoStorage("agendamentos", ags);
+        return ags.find((a) => a.id == id);
+      }
+      async function excluirAgendamento(id) {
+        const ags = lerDoStorage("agendamentos").filter((a) => a.id != id);
+        salvarNoStorage("agendamentos", ags);
+      }
+
+      function formatarData(data) {
+        if (!data) return "";
+        if (data.includes("/")) return data;
+        const [ano, mes, dia] = data.split("-");
+        return `${dia}/${mes}/${ano}`;
+      }
+
+      function Navbar({ onNav, current }) {
+        return html`
+          <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand ms-3" href="#">Sistema de Agendamentos</a>
+            <button
+              class="navbar-toggler me-3"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse ms-3" id="navbarNav">
+              <div class="d-flex w-100 align-items-center">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link ${current === "dashboard" && "active"}"
+                      href="#"
+                      onClick=${(e) => {
+                        e.preventDefault();
+                        onNav("dashboard");
+                      }}
+                      >Dashboard</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link ${current === "agendamentos" && "active"}"
+                      href="#"
+                      onClick=${(e) => {
+                        e.preventDefault();
+                        onNav("agendamentos");
+                      }}
+                      >Agendamentos</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link ${current === "usuarios" && "active"}"
+                      href="#"
+                      onClick=${(e) => {
+                        e.preventDefault();
+                        onNav("usuarios");
+                      }}
+                      >Usuários</a
+                    >
+                  </li>
+                  <!-- Github link como item do menu, só no mobile -->
+                  <li class="nav-item d-lg-none">
+                    <a
+                      class="nav-link"
+                      href="https://github.com/carlosxfelipe/"
+                      target="_blank"
+                      rel="noopener"
+                      >Github</a
+                    >
+                  </li>
+                </ul>
+                <!-- Github ícone, só no desktop -->
+                <a
+                  class="ms-auto me-3 nav-link text-white d-none d-lg-flex align-items-center"
+                  href="https://github.com/carlosxfelipe/"
+                  target="_blank"
+                  rel="noopener"
+                  title="Ver no GitHub"
+                  style="font-size:1.7rem;"
+                >
+                  <i class="bi bi-github"></i>
+                </a>
+              </div>
+            </div>
+          </nav>
+        `;
+      }
+
+      function Dashboard({ agendamentos, usuarios, detailTipo, onCardClick }) {
+        const ativos = agendamentos.filter((a) => a.status === "ativo");
+        const concluidos = agendamentos.filter((a) => a.status === "concluido");
+        const cancelados = agendamentos.filter((a) => a.status === "cancelado");
+        function renderDetail() {
+          if (!detailTipo) return null;
+          if (detailTipo === "usuarios") {
+            return usuarios.length
+              ? html`
+                  <div class="mt-4">
+                    <h5>Usuários Cadastrados</h5>
+                    <ul>
+                      ${usuarios.map(
+                        (u) =>
+                          html`<li><strong>${u.nome}</strong> - ${u.email}</li>`
+                      )}
+                    </ul>
+                  </div>
+                `
+              : html`<div class="mt-4 alert alert-warning">
+                  Nenhum usuário cadastrado.
+                </div>`;
+          }
+          let lista =
+            detailTipo === "ativos"
+              ? ativos
+              : detailTipo === "concluidos"
+              ? concluidos
+              : cancelados;
+          let titulo =
+            detailTipo === "ativos"
+              ? "Agendamentos Ativos"
+              : detailTipo === "concluidos"
+              ? "Agendamentos Concluídos"
+              : "Agendamentos Cancelados";
+          return lista.length
+            ? html`
+                <div class="mt-4">
+                  <h5>${titulo}</h5>
+                  <ul>
+                    ${lista.map(
+                      (a) =>
+                        html`<li>
+                          <strong>#${a.id}</strong> - ${formatarData(a.data)}
+                          ${" às "} ${a.hora} (Usuário:
+                          ${usuarios.find((u) => u.id == a.usuarioId)?.nome ||
+                          "Desconhecido"})
+                        </li>`
+                    )}
+                  </ul>
+                </div>
+              `
+            : html`<div class="mt-4 alert alert-warning">
+                Nenhum ${titulo.toLowerCase()}.
+              </div>`;
+        }
+        return html`
+          <div class="container mt-4">
+            <h2>Dashboard de Agendamento</h2>
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-3">
+                <div
+                  class="card text-bg-info"
+                  style="cursor:pointer;"
+                  onClick=${() => onCardClick("ativos")}
+                >
+                  <div class="card-header">Ativos</div>
+                  <div class="card-body">
+                    <h5 class="card-title">${ativos.length}</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-3">
+                <div
+                  class="card text-bg-success"
+                  style="cursor:pointer;"
+                  onClick=${() => onCardClick("concluidos")}
+                >
+                  <div class="card-header">Concluídos</div>
+                  <div class="card-body">
+                    <h5 class="card-title">${concluidos.length}</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-3">
+                <div
+                  class="card text-bg-danger"
+                  style="cursor:pointer;"
+                  onClick=${() => onCardClick("cancelados")}
+                >
+                  <div class="card-header">Cancelados</div>
+                  <div class="card-body">
+                    <h5 class="card-title">${cancelados.length}</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-lg-3">
+                <div
+                  class="card text-bg-warning"
+                  style="cursor:pointer;"
+                  onClick=${() => onCardClick("usuarios")}
+                >
+                  <div class="card-header">Usuários Cadastrados</div>
+                  <div class="card-body">
+                    <h5 class="card-title">${usuarios.length}</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+            ${renderDetail()}
+          </div>
+        `;
+      }
+
+      function Agendamentos({ agendamentos, setAgendamentos, usuarios }) {
+        const [form, setForm] = useState({
+          id: "",
+          data: "",
+          hora: "",
+          status: "ativo",
+          usuarioId: "",
+        });
+        const [buscaUsuario, setBuscaUsuario] = useState("");
+        const editing = form.id !== "";
+        function onInput(e) {
+          const { name, value } = e.target;
+          setForm((f) => ({ ...f, [name]: value }));
+        }
+        function onEdit(a) {
+          setForm({ ...a });
+        }
+        // async function onDelete(id) {
+        //   await excluirAgendamento(id);
+        //   setAgendamentos((ags) => ags.filter((a) => a.id !== id));
+        // }
+        function onDelete(id) {
+          window._deleteAgendamentoId = id;
+          const modal = new bootstrap.Modal(
+            document.getElementById("confirmModal")
+          );
+          modal.show();
+          const btn = document.getElementById("confirmDeleteBtn");
+          btn.onclick = async function () {
+            await excluirAgendamento(window._deleteAgendamentoId);
+            setAgendamentos((ags) =>
+              ags.filter((a) => a.id !== window._deleteAgendamentoId)
+            );
+            modal.hide();
+          };
+        }
+        function onCancel() {
+          setForm({
+            id: "",
+            data: "",
+            hora: "",
+            status: "ativo",
+            usuarioId: "",
+          });
+        }
+        async function onSubmit(e) {
+          e.preventDefault();
+          if (!form.data || !form.hora || !form.status || !form.usuarioId) {
+            alert("Preencha todos os campos!");
+            return;
+          }
+          if (editing) {
+            const atualizado = await editarAgendamento(form.id, {
+              data: form.data,
+              hora: form.hora,
+              status: form.status,
+              usuarioId: Number(form.usuarioId),
+            });
+            setAgendamentos((ags) =>
+              ags.map((a) => (a.id == form.id ? atualizado : a))
+            );
+          } else {
+            const novo = await adicionarAgendamento({
+              data: form.data,
+              hora: form.hora,
+              status: form.status,
+              usuarioId: Number(form.usuarioId),
+            });
+            setAgendamentos((ags) => [...ags, novo]);
+          }
+          setForm({
+            id: "",
+            data: "",
+            hora: "",
+            status: "ativo",
+            usuarioId: "",
+          });
+        }
+        function nomeUsuario(id) {
+          const user = usuarios.find((u) => u.id == id);
+          return user ? user.nome : "Desconhecido";
+        }
+        const agendamentosFiltrados = buscaUsuario.trim()
+          ? agendamentos.filter((ag) => {
+              const usuario = usuarios.find((u) => u.id == ag.usuarioId);
+              return (
+                usuario &&
+                usuario.nome.toLowerCase().includes(buscaUsuario.toLowerCase())
+              );
+            })
+          : agendamentos;
+
+        return html`
+          <div class="container mt-4">
+            <h2>Agendamentos</h2>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="Buscar por usuário..."
+                  value=${buscaUsuario}
+                  onInput=${(e) => setBuscaUsuario(e.target.value)}
+                />
+              </div>
+            </div>
+            <form class="row g-2 mb-3" onSubmit=${onSubmit}>
+              <input type="hidden" name="id" value=${form.id} />
+              <div class="col-md-3">
+                <label class="form-label">Data</label>
+                <input
+                  class="form-control"
+                  name="data"
+                  type="date"
+                  value=${form.data}
+                  onInput=${onInput}
+                  required
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Hora</label>
+                <input
+                  class="form-control"
+                  name="hora"
+                  type="time"
+                  value=${form.hora}
+                  onInput=${onInput}
+                  required
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select
+                  class="form-select"
+                  name="status"
+                  value=${form.status}
+                  onInput=${onInput}
+                  required
+                >
+                  <option value="ativo">Ativo</option>
+                  <option value="concluido">Concluído</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Usuário</label>
+                <select
+                  class="form-select"
+                  name="usuarioId"
+                  value=${form.usuarioId}
+                  onInput=${onInput}
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  ${usuarios.map(
+                    (u) => html`<option value="${u.id}">${u.nome}</option>`
+                  )}
+                </select>
+              </div>
+              <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-primary">
+                  ${editing ? "Salvar" : "Adicionar"}
+                </button>
+                ${editing &&
+                html`
+                  <button
+                    type="button"
+                    class="btn btn-secondary ms-2"
+                    onClick=${onCancel}
+                  >
+                    Cancelar
+                  </button>
+                `}
+              </div>
+            </form>
+            <div>
+              ${agendamentosFiltrados.length === 0 &&
+              html`<div class="alert alert-warning">
+                Nenhum agendamento
+                encontrado${buscaUsuario ? " para essa busca" : ""}.
+              </div>`}
+              ${editing
+                ? agendamentosFiltrados
+                    .filter((ag) => ag.id == form.id)
+                    .map(
+                      (ag) => html`
+                        <div class="card">
+                          <div class="card-body">
+                            <h5 class="card-title">Agendamento #${ag.id}</h5>
+                            <p class="card-text">
+                              <strong>Data:</strong> ${formatarData(
+                                ag.data
+                              )}<br />
+                              <strong>Hora:</strong> ${ag.hora}<br />
+                              <strong>Status:</strong> ${ag.status}<br />
+                              <strong>Usuário:</strong> ${nomeUsuario(
+                                ag.usuarioId
+                              )}
+                              (ID: ${ag.usuarioId})
+                            </p>
+                            <button
+                              class="btn btn-warning btn-sm me-2"
+                              onClick=${() => onEdit(ag)}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              class="btn btn-danger btn-sm"
+                              onClick=${() => onDelete(ag.id)}
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                      `
+                    )
+                : agendamentosFiltrados.map(
+                    (ag) => html`
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">Agendamento #${ag.id}</h5>
+                          <p class="card-text">
+                            <strong>Data:</strong> ${formatarData(
+                              ag.data
+                            )}<br />
+                            <strong>Hora:</strong> ${ag.hora}<br />
+                            <strong>Status:</strong> ${ag.status}<br />
+                            <strong>Usuário:</strong> ${nomeUsuario(
+                              ag.usuarioId
+                            )}
+                            (ID: ${ag.usuarioId})
+                          </p>
+                          <button
+                            class="btn btn-warning btn-sm me-2"
+                            onClick=${() => onEdit(ag)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            class="btn btn-danger btn-sm"
+                            onClick=${() => onDelete(ag.id)}
+                          >
+                            Excluir
+                          </button>
+                        </div>
+                      </div>
+                    `
+                  )}
+            </div>
+          </div>
+        `;
+      }
+
+      function Usuarios({ usuarios, setUsuarios, setAgendamentos }) {
+        const [form, setForm] = useState({ id: "", nome: "", email: "" });
+        const [busca, setBusca] = useState("");
+        const editing = form.id !== "";
+        function onInput(e) {
+          const { name, value } = e.target;
+          setForm((f) => ({ ...f, [name]: value }));
+        }
+        function onEdit(u) {
+          setForm({ ...u });
+        }
+        // async function onDelete(id) {
+        //   await excluirUsuario(id);
+        //   setUsuarios((us) => us.filter((u) => u.id !== id));
+        //   setAgendamentos((ags) => ags.filter((a) => a.usuarioId !== id));
+        //   if (form.id == id) setForm({ id: "", nome: "", email: "" });
+        // }
+        function onDelete(id) {
+          window._deleteUsuarioId = id;
+          const modal = new bootstrap.Modal(
+            document.getElementById("confirmModal")
+          );
+          modal.show();
+          const btn = document.getElementById("confirmDeleteBtn");
+          btn.onclick = async function () {
+            await excluirUsuario(window._deleteUsuarioId);
+            setUsuarios((us) =>
+              us.filter((u) => u.id !== window._deleteUsuarioId)
+            );
+            setAgendamentos((ags) =>
+              ags.filter((a) => a.usuarioId !== window._deleteUsuarioId)
+            );
+            if (form.id == window._deleteUsuarioId)
+              setForm({ id: "", nome: "", email: "" });
+            modal.hide();
+          };
+        }
+        function onCancel() {
+          setForm({ id: "", nome: "", email: "" });
+        }
+        async function onSubmit(e) {
+          e.preventDefault();
+          if (!form.nome || !form.email) {
+            alert("Preencha todos os campos!");
+            return;
+          }
+          if (editing) {
+            const atualizado = await editarUsuario(form.id, {
+              nome: form.nome,
+              email: form.email,
+            });
+            setUsuarios((us) =>
+              us.map((u) => (u.id == form.id ? atualizado : u))
+            );
+          } else {
+            const novo = await adicionarUsuario({
+              nome: form.nome,
+              email: form.email,
+            });
+            setUsuarios((us) => [...us, novo]);
+          }
+          setForm({ id: "", nome: "", email: "" });
+        }
+        const usuariosFiltrados = usuarios.filter(
+          (u) =>
+            u.nome.toLowerCase().includes(busca.toLowerCase()) ||
+            u.email.toLowerCase().includes(busca.toLowerCase())
+        );
+        return html`
+          <div class="container mt-4">
+            <h2>Usuários</h2>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="Buscar por nome ou e-mail..."
+                  value=${busca}
+                  onInput=${(e) => setBusca(e.target.value)}
+                />
+              </div>
+            </div>
+            <form class="row g-2 mb-3" onSubmit=${onSubmit}>
+              <input type="hidden" name="id" value=${form.id} />
+              <div class="col-md-5">
+                <label class="form-label">Nome</label>
+                <input
+                  class="form-control"
+                  name="nome"
+                  type="text"
+                  value=${form.nome}
+                  onInput=${onInput}
+                  required
+                />
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">E-mail</label>
+                <input
+                  class="form-control"
+                  name="email"
+                  type="email"
+                  value=${form.email}
+                  onInput=${onInput}
+                  required
+                />
+              </div>
+              <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-primary">
+                  ${editing ? "Salvar" : "Adicionar"}
+                </button>
+                ${editing &&
+                html`
+                  <button
+                    type="button"
+                    class="btn btn-secondary ms-2"
+                    onClick=${onCancel}
+                  >
+                    Cancelar
+                  </button>
+                `}
+              </div>
+            </form>
+            <div>
+              ${usuariosFiltrados.length === 0 &&
+              html`<div class="alert alert-warning">
+                Nenhum usuário
+                cadastrado${busca ? " ou encontrado para essa busca" : ""}.
+              </div>`}
+              ${editing
+                ? usuariosFiltrados
+                    .filter((u) => u.id == form.id)
+                    .map(
+                      (u) => html`
+                        <div class="card">
+                          <div class="card-body">
+                            <h5 class="card-title">Usuário #${u.id}</h5>
+                            <p class="card-text">
+                              <strong>Nome:</strong> ${u.nome}<br />
+                              <strong>Email:</strong> ${u.email}
+                            </p>
+                            <button
+                              class="btn btn-warning btn-sm me-2"
+                              onClick=${() => onEdit(u)}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              class="btn btn-danger btn-sm"
+                              onClick=${() => onDelete(u.id)}
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                      `
+                    )
+                : usuariosFiltrados.map(
+                    (u) => html`
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">Usuário #${u.id}</h5>
+                          <p class="card-text">
+                            <strong>Nome:</strong> ${u.nome}<br />
+                            <strong>Email:</strong> ${u.email}
+                          </p>
+                          <button
+                            class="btn btn-warning btn-sm me-2"
+                            onClick=${() => onEdit(u)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            class="btn btn-danger btn-sm"
+                            onClick=${() => onDelete(u.id)}
+                          >
+                            Excluir
+                          </button>
+                        </div>
+                      </div>
+                    `
+                  )}
+            </div>
+          </div>
+        `;
+      }
+
+      function seedLocalStorageIfNeeded() {
+        if (!localStorage.getItem("usuarios")) {
+          const usuarios = [
+            { id: 1, nome: "Fulano", email: "fulano@gmail.com" },
+            { id: 2, nome: "Beltrano", email: "beltrano@gmail.com" },
+            { id: 3, nome: "Sicrano", email: "sicrano@gmail.com" },
+          ];
+          const agendamentos = [
+            {
+              id: 1,
+              data: "2023-11-10",
+              hora: "14:00",
+              status: "ativo",
+              usuarioId: 1,
+            },
+            {
+              id: 2,
+              data: "2023-11-12",
+              hora: "09:00",
+              status: "concluido",
+              usuarioId: 2,
+            },
+            {
+              id: 3,
+              data: "2023-11-15",
+              hora: "16:30",
+              status: "ativo",
+              usuarioId: 3,
+            },
+          ];
+          localStorage.setItem("usuarios", JSON.stringify(usuarios));
+          localStorage.setItem("agendamentos", JSON.stringify(agendamentos));
+        }
+      }
+
+      function App() {
+        const [view, setView] = useState("dashboard");
+        const [agendamentos, setAgendamentos] = useState([]);
+        const [usuarios, setUsuarios] = useState([]);
+        const [dashboardDetailTipo, setDashboardDetailTipo] = useState("");
+        useEffect(() => {
+          seedLocalStorageIfNeeded();
+          fetchUsuarios().then(setUsuarios);
+          fetchAgendamentos().then(setAgendamentos);
+        }, []);
+        return html`
+          <${Navbar} onNav=${setView} current=${view} />
+          <main>
+            ${view === "dashboard" &&
+            html`<${Dashboard}
+              agendamentos=${agendamentos}
+              usuarios=${usuarios}
+              detailTipo=${dashboardDetailTipo}
+              onCardClick=${setDashboardDetailTipo}
+            />`}
+            ${view === "agendamentos" &&
+            html`<${Agendamentos}
+              agendamentos=${agendamentos}
+              setAgendamentos=${setAgendamentos}
+              usuarios=${usuarios}
+            />`}
+            ${view === "usuarios" &&
+            html`<${Usuarios}
+              usuarios=${usuarios}
+              setUsuarios=${setUsuarios}
+              setAgendamentos=${setAgendamentos}
+            />`}
+          </main>
+        `;
+      }
+      render(h(App), document.getElementById("app"));
+    </script>
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar Exclusão</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            Tem certeza que deseja excluir este item?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+              Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
