@@ -58,6 +58,19 @@
         height: 210px;
         font-size: 3rem;
       }
+      @media (max-width: 640px) {
+        .um-card {
+          width: 80px;
+          height: 120px;
+          font-size: 1.5rem;
+        }
+
+        .large-card {
+          width: 100px;
+          height: 150px;
+          font-size: 2rem;
+        }
+      }
     </style>
   </head>
   <body
@@ -264,69 +277,77 @@
           }
         }, [turn, awaitingColorChoice]);
 
-        return h("div", { class: "w-full flex flex-col items-center" }, [
-          h(
-            "div",
-            { class: "w-full flex justify-between items-center mb-4 px-4" },
-            [
-              h("h1", { class: "text-white text-4xl font-bold" }, "UM Game"),
-              !winner &&
-                h(
-                  "div",
-                  { class: "text-white text-lg flex items-center gap-2" },
-                  [
-                    h("span", null, "Cor atual:"),
-                    h("div", {
-                      class: `w-5 h-5 rounded-full ${activeColor}`,
-                      style: "border: 2px solid white",
-                    }),
-                    h("span", null, colorNames[activeColor] || activeColor),
-                  ]
-                ),
-            ]
-          ),
-          winner &&
+        return h(
+          "div",
+          { class: "w-full flex flex-col items-center px-2 sm:px-6" },
+          [
             h(
               "div",
-              { class: "text-white text-2xl font-semibold mb-4" },
-              `🎉 ${winner} venceu o jogo!`
+              { class: "w-full flex justify-between items-center mb-4 px-4" },
+              [
+                h(
+                  "h1",
+                  { class: "text-white text-2xl sm:text-4xl font-bold" },
+                  "UM Game"
+                ),
+                !winner &&
+                  h(
+                    "div",
+                    { class: "text-white text-lg flex items-center gap-2" },
+                    [
+                      h("span", null, "Cor atual:"),
+                      h("div", {
+                        class: `w-5 h-5 rounded-full ${activeColor}`,
+                        style: "border: 2px solid white",
+                      }),
+                      h("span", null, colorNames[activeColor] || activeColor),
+                    ]
+                  ),
+              ]
             ),
-          h(
-            "div",
-            { class: "flex justify-center mb-6" },
-            aiHand.map((_, i) =>
-              h(Card, { key: i, color: "black", value: "", hidden: true })
-            )
-          ),
+            winner &&
+              h(
+                "div",
+                { class: "text-white text-2xl font-semibold mb-4" },
+                `🎉 ${winner} venceu o jogo!`
+              ),
+            h(
+              "div",
+              { class: "flex justify-center mb-6 flex-wrap" },
+              aiHand.map((_, i) =>
+                h(Card, { key: i, color: "black", value: "", hidden: true })
+              )
+            ),
 
-          h("div", { class: "flex items-center justify-center mb-6" }, [
-            h("div", { class: "flex flex-col items-center mr-6" }, [
-              h("div", { class: "text-white text-sm mb-1" }, "Descarte"),
-              h(Card, { ...topCard, large: true }),
+            h("div", { class: "flex items-center justify-center mb-6" }, [
+              h("div", { class: "flex flex-col items-center mr-6" }, [
+                h("div", { class: "text-white text-sm mb-1" }, "Descarte"),
+                h(Card, { ...topCard, large: true }),
+              ]),
+              h("div", { class: "flex flex-col items-center" }, [
+                h("div", { class: "text-white text-sm mb-1" }, "Puxar"),
+                h(Card, {
+                  color: "black",
+                  value: "",
+                  onClick: drawCard,
+                  hidden: true,
+                  large: true,
+                }),
+              ]),
             ]),
-            h("div", { class: "flex flex-col items-center" }, [
-              h("div", { class: "text-white text-sm mb-1" }, "Puxar"),
-              h(Card, {
-                color: "black",
-                value: "",
-                onClick: drawCard,
-                hidden: true,
-                large: true,
-              }),
-            ]),
-          ]),
 
-          awaitingColorChoice && h(ColorPicker, { onPick: pickColor }),
+            awaitingColorChoice && h(ColorPicker, { onPick: pickColor }),
 
-          h("div", { class: "text-white text-lg mb-2" }, "Sua mão:"),
-          h(
-            "div",
-            { class: "flex justify-center flex-wrap" },
-            playerHand.map((card, i) =>
-              h(Card, { ...card, key: i, onClick: () => playCard(i) })
-            )
-          ),
-        ]);
+            h("div", { class: "text-white text-lg mb-2" }, "Sua mão:"),
+            h(
+              "div",
+              { class: "flex justify-center flex-wrap" },
+              playerHand.map((card, i) =>
+                h(Card, { ...card, key: i, onClick: () => playCard(i) })
+              )
+            ),
+          ]
+        );
       };
 
       render(h(App), document.getElementById("app"));
