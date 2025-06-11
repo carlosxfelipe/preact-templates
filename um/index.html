@@ -168,12 +168,29 @@
 
         const topCard = discardPile[discardPile.length - 1];
 
+        // const isValidMove = (card) => {
+        //   return (
+        //     card.color === activeColor ||
+        //     card.value === topCard.value ||
+        //     card.color === "black"
+        //   );
+        // };
+
         const isValidMove = (card) => {
-          return (
-            card.color === activeColor ||
-            card.value === topCard.value ||
-            card.color === "black"
-          );
+          const top = topCard;
+
+          if (card.color === "black") return true; // coringa sempre pode
+
+          const sameColor = card.color === activeColor;
+          const sameType = card.value === top.value;
+
+          const bothNumbers = !isNaN(card.value) && !isNaN(top.value);
+          const bothActions = isNaN(card.value) && isNaN(top.value);
+
+          if (sameColor) return true;
+          if (sameType && (bothNumbers || bothActions)) return true;
+
+          return false;
         };
 
         const checkForWinner = (player, hand) => {
