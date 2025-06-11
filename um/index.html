@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM Game</title>
+    <script src="https://unpkg.com/preact@10.15.1/dist/preact.umd.js"></script>
+    <script src="https://unpkg.com/preact@10.15.1/hooks/dist/hooks.umd.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .um-card {
+        width: 120px;
+        height: 180px;
+        border-radius: 1rem;
+        border: 6px solid white;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2.5rem;
+        position: relative;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+        transform: rotate(0deg);
+        transition: transform 0.2s;
+        cursor: pointer;
+      }
+      .um-card:hover {
+        transform: scale(1.08) rotate(2deg);
+      }
+      .red {
+        background-color: #e3342f;
+      }
+      .green {
+        background-color: #38a169;
+      }
+      .blue {
+        background-color: #3490dc;
+      }
+      .yellow {
+        background-color: #f6e05e;
+        color: #1a202c;
+      }
+      .black {
+        background-color: #1a202c;
+      }
+      .back {
+        background: repeating-linear-gradient(
+          45deg,
+          #1a202c,
+          #1a202c 10px,
+          #2d3748 10px,
+          #2d3748 20px
+        );
+      }
+      .large-card {
+        width: 140px;
+        height: 210px;
+        font-size: 3rem;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-green-700 min-h-screen flex flex-col items-center justify-between py-6"
+  >
+    <div id="app" class="w-full max-w-4xl mx-auto"></div>
+
+    <script>
+      const { h, render } = preact;
+      const { useState, useEffect } = preactHooks;
+
+      const COLORS = ["red", "green", "blue", "yellow"];
+
+      const createFullDeck = () => {
+        const deck = [];
+        COLORS.forEach((color) => {
+          deck.push({ color, value: "0" });
+          for (let i = 1; i <= 9; i++) {
+            deck.push({ color, value: i.toString() });
+            deck.push({ color, value: i.toString() });
+          }
+          ["+2", "skip", "reverse"].forEach((special) => {
+            deck.push({ color, value: special });
+            deck.push({ color, value: special });
+          });
+        });
+        for (let i = 0; i < 4; i++) {
+          deck.push({ color: "black", value: "wild" });
+          deck.push({ color: "black", value: "+4" });
+        }
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+      };
+
+      const Card = ({ color, value, onClick, hidden, large }) =>
+        h(
+          "div",
+          {
+            class: `um-card ${hidden ? "back" : color} ${
+              large ? "large-card" : ""
+            } m-1`,
+            onClick,
+          },
+          hidden ? "" : value
+        );
+
+      const ColorPicker = ({ onPick }) =>
+        h(
+          "div",
+          { class: "flex gap-2 my-4" },
+          COLORS.map((color) =>
+            h(
+              "button",
+              {
+                class: `um-card ${color}`,
+                onClick: () => onPick(color),
+              },
+              color[0].toUpperCase()
+            )
+          )
+        );
+
+      const colorNames = {
+        red: "vermelho",
+        green: "verde",
+        blue: "azul",
+        yellow: "amarelo",
+        black: "preto",
+      };
+
+      const App = () => {
+        const [deck, setDeck] = useState(createFullDeck());
+        const [playerHand, setPlayerHand] = useState([]);
+        const [aiHand, setAiHand] = useState([]);
+        const [discardPile, setDiscardPile] = useState([]);
+        const [turn, setTurn] = useState("player");
+        const [winner, setWinner] = useState(null);
+        const [activeColor, setActiveColor] = useState(null);
+        const [awaitingColorChoice, setAwaitingColorChoice] = useState(false);
+
+        useEffect(() => {
+          const newDeck = [...deck];
+          const player = newDeck.splice(0, 7);
+          const ai = newDeck.splice(0, 7);
+          const firstCard = newDeck.shift();
+          setPlayerHand(player);
+          setAiHand(ai);
+          setDiscardPile([firstCard]);
+          setActiveColor(firstCard.color);
+          setDeck(newDeck);
+        }, []);
+
+        const topCard = discardPile[discardPile.length - 1];
+
+        const isValidMove = (card) => {
+          return (
+            card.color === activeColor ||
+            card.value === topCard.value ||
+            card.color === "black"
+          );
+        };
+
+        const checkForWinner = (player, hand) => {
+          if (hand.length === 0) {
+            setWinner(player);
+          }
+        };
+
+        const playCard = (cardIndex) => {
+          if (turn !== "player" || winner || awaitingColorChoice) return;
+          const card = playerHand[cardIndex];
+          if (!isValidMove(card)) return;
+          const newHand = [...playerHand];
+          newHand.splice(cardIndex, 1);
+          setPlayerHand(newHand);
+          setDiscardPile([...discardPile, card]);
+
+          if (card.color === "black") {
+            setAwaitingColorChoice(true);
+            if (card.value === "+4") {
+              const drawn = deck.slice(0, 4);
+              setAiHand([...aiHand, ...drawn]);
+              setDeck(deck.slice(4));
+            }
+          } else {
+            setActiveColor(card.color);
+
+            if (card.value === "+2") {
+              const drawn = deck.slice(0, 2);
+              setAiHand([...aiHand, ...drawn]);
+              setDeck(deck.slice(2));
+            }
+
+            checkForWinner("Você", newHand);
+            setTurn("ai");
+          }
+        };
+
+        const pickColor = (color) => {
+          setActiveColor(color);
+          setAwaitingColorChoice(false);
+          setTurn("ai");
+        };
+
+        const drawCard = () => {
+          if (
+            turn !== "player" ||
+            winner ||
+            deck.length === 0 ||
+            awaitingColorChoice
+          )
+            return;
+          const newDeck = [...deck];
+          const card = newDeck.shift();
+          const newHand = [...playerHand, card];
+          setPlayerHand(newHand);
+          setDeck(newDeck);
+          setTurn("ai");
+        };
+
+        const aiPlay = () => {
+          if (winner) return;
+          const validCardIndex = aiHand.findIndex(isValidMove);
+          if (validCardIndex >= 0) {
+            const card = aiHand[validCardIndex];
+            const newHand = [...aiHand];
+            newHand.splice(validCardIndex, 1);
+            setAiHand(newHand);
+            setDiscardPile((prev) => [...prev, card]);
+
+            if (card.color === "black") {
+              const chosen = COLORS[Math.floor(Math.random() * COLORS.length)];
+              setActiveColor(chosen);
+              if (card.value === "+4") {
+                const drawn = deck.slice(0, 4);
+                setPlayerHand([...playerHand, ...drawn]);
+                setDeck(deck.slice(4));
+              }
+            } else {
+              setActiveColor(card.color);
+              if (card.value === "+2") {
+                const drawn = deck.slice(0, 2);
+                setPlayerHand([...playerHand, ...drawn]);
+                setDeck(deck.slice(2));
+              }
+            }
+
+            checkForWinner("IA", newHand);
+          } else if (deck.length > 0) {
+            const newDeck = [...deck];
+            const drawnCard = newDeck.shift();
+            setAiHand((prev) => [...prev, drawnCard]);
+            setDeck(newDeck);
+          }
+          setTurn("player");
+        };
+
+        useEffect(() => {
+          if (turn === "ai" && !winner && !awaitingColorChoice) {
+            setTimeout(aiPlay, 1000);
+          }
+        }, [turn, awaitingColorChoice]);
+
+        return h("div", { class: "w-full flex flex-col items-center" }, [
+          h(
+            "div",
+            { class: "w-full flex justify-between items-center mb-4 px-4" },
+            [
+              h("h1", { class: "text-white text-4xl font-bold" }, "UM Game"),
+              !winner &&
+                h(
+                  "div",
+                  { class: "text-white text-lg flex items-center gap-2" },
+                  [
+                    h("span", null, "Cor atual:"),
+                    h("div", {
+                      class: `w-5 h-5 rounded-full ${activeColor}`,
+                      style: "border: 2px solid white",
+                    }),
+                    h("span", null, colorNames[activeColor] || activeColor),
+                  ]
+                ),
+            ]
+          ),
+          winner &&
+            h(
+              "div",
+              { class: "text-white text-2xl font-semibold mb-4" },
+              `🎉 ${winner} venceu o jogo!`
+            ),
+          h(
+            "div",
+            { class: "flex justify-center mb-6" },
+            aiHand.map((_, i) =>
+              h(Card, { key: i, color: "black", value: "", hidden: true })
+            )
+          ),
+
+          h("div", { class: "flex items-center justify-center mb-6" }, [
+            h("div", { class: "flex flex-col items-center mr-6" }, [
+              h("div", { class: "text-white text-sm mb-1" }, "Descarte"),
+              h(Card, { ...topCard, large: true }),
+            ]),
+            h("div", { class: "flex flex-col items-center" }, [
+              h("div", { class: "text-white text-sm mb-1" }, "Puxar"),
+              h(Card, {
+                color: "black",
+                value: "",
+                onClick: drawCard,
+                hidden: true,
+                large: true,
+              }),
+            ]),
+          ]),
+
+          awaitingColorChoice && h(ColorPicker, { onPick: pickColor }),
+
+          h("div", { class: "text-white text-lg mb-2" }, "Sua mão:"),
+          h(
+            "div",
+            { class: "flex justify-center flex-wrap" },
+            playerHand.map((card, i) =>
+              h(Card, { ...card, key: i, onClick: () => playCard(i) })
+            )
+          ),
+        ]);
+      };
+
+      render(h(App), document.getElementById("app"));
+    </script>
+  </body>
+</html>
