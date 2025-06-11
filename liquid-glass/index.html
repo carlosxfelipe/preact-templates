@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Liquid Glass</title>
+    <script
+      defer
+      src="https://unpkg.com/preact@latest/dist/preact.umd.js"
+    ></script>
+    <script
+      defer
+      src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        min-height: 500vh;
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        overflow-x: hidden;
+      }
+      .bg {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+      }
+      .bg img {
+        width: 100%;
+        display: block;
+      }
+      .glass {
+        position: fixed;
+        inset: 50% auto auto 50%;
+        transform: translate(-50%, -50%);
+        width: 20rem;
+        height: 20rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid transparent;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6),
+          0 16px 32px rgba(0, 0, 0, 0.12);
+        backdrop-filter: url(#frosted);
+        -webkit-backdrop-filter: url(#frosted);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        outline: 0;
+      }
+      .glass::before,
+      .glass::after {
+        content: "";
+        position: absolute;
+        width: 40%;
+        height: 10px;
+        background: #fff;
+        border-radius: 10px;
+      }
+      .glass::after {
+        transform: rotate(90deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg">
+      <img
+        src="https://i.ibb.co/bMvc7Zr6/Vibrant-Summer-Meadow-Watercolor.png"
+        alt=""
+      />
+      <img
+        src="https://i.ibb.co/ZRH04pV3/Vibrant-Summer-Meadow-Watercolor-1.png"
+        alt=""
+      />
+      <img
+        src="https://i.ibb.co/bMvc7Zr6/Vibrant-Summer-Meadow-Watercolor.png"
+        alt=""
+      />
+    </div>
+
+    <div id="app"></div>
+
+    <svg style="position: absolute; width: 0; height: 0">
+      <filter id="frosted" primitiveUnits="objectBoundingBox">
+        <feImage
+          href="data:image/png;base64,..."
+          x="0"
+          y="0"
+          width="1"
+          height="1"
+          result="map"
+        />
+        <feGaussianBlur in="SourceGraphic" stdDeviation="0.02" result="blur" />
+        <feDisplacementMap
+          id="disp"
+          in="blur"
+          in2="map"
+          scale="1"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        >
+          <animate
+            attributeName="scale"
+            to="1.4"
+            dur="0.3s"
+            begin="btn.mouseover"
+            fill="freeze"
+          />
+          <animate
+            attributeName="scale"
+            to="1"
+            dur="0.3s"
+            begin="btn.mouseout"
+            fill="freeze"
+          />
+        </feDisplacementMap>
+      </filter>
+    </svg>
+
+    <script type="module">
+      const { h, render } = preact;
+      const { useState } = preactHooks;
+
+      function GlassButton() {
+        return h("button", {
+          id: "btn",
+          className: "glass",
+          onClick: () => alert("Glass button clicked!"),
+        });
+      }
+
+      render(h(GlassButton), document.getElementById("app"));
+    </script>
+  </body>
+</html>
