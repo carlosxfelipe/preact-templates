@@ -140,7 +140,15 @@
         wild: "Coringa",
       };
 
-      const Card = ({ color, value, onClick, hidden, large }) => {
+      const borderColors = {
+        red: "#c53030", // Tailwind red-600
+        green: "#2f855a", // Tailwind green-600
+        blue: "#2b6cb0", // Tailwind blue-600
+        yellow: "#d69e2e", // Tailwind yellow-600
+        black: "#4a5568", // Tailwind gray-700 (neutro para preto)
+      };
+
+      const Card = ({ color, value, onClick, hidden, large, borderColor }) => {
         const label = cardLabels[value] || value;
 
         const isShort = String(label).length <= 2;
@@ -152,6 +160,7 @@
               large ? "large-card" : ""
             } m-1`,
             onClick,
+            style: borderColor ? { borderColor } : undefined,
           },
           hidden
             ? ""
@@ -220,14 +229,6 @@
         }, []);
 
         const topCard = discardPile[discardPile.length - 1];
-
-        // const isValidMove = (card) => {
-        //   return (
-        //     card.color === activeColor ||
-        //     card.value === topCard.value ||
-        //     card.color === "black"
-        //   );
-        // };
 
         const isValidMove = (card) => {
           const top = topCard;
@@ -327,6 +328,10 @@
             awaitingColorChoice
           )
             return;
+
+          const drawAudio = document.getElementById("draw-sound");
+          if (drawAudio) drawAudio.play();
+
           const newDeck = [...deck];
           const card = newDeck.shift();
           const newHand = [...playerHand, card];
@@ -469,7 +474,12 @@
             h("div", { class: "flex items-center justify-center mb-6" }, [
               h("div", { class: "flex flex-col items-center mr-6" }, [
                 h("div", { class: "text-white text-sm mb-1" }, "Descarte"),
-                h(Card, { ...topCard, large: true }),
+                // h(Card, { ...topCard, large: true }),
+                h(Card, {
+                  ...topCard,
+                  large: true,
+                  borderColor: borderColors[activeColor] || "white",
+                }),
               ]),
               h("div", { class: "flex flex-col items-center" }, [
                 h("div", { class: "text-white text-sm mb-1" }, "Puxar"),
@@ -499,5 +509,23 @@
 
       render(h(App), document.getElementById("app"));
     </script>
+
+    <div id="app" class="w-full max-w-6xl mx-auto"></div>
+
+    <footer class="text-white text-sm opacity-60 mt-8 text-center">
+      Feito por
+      <a
+        href="https://github.com/carlosxfelipe"
+        target="_blank"
+        class="hover:opacity-80"
+        >Carlos Felipe Araújo</a
+      >
+    </footer>
+
+    <audio
+      id="draw-sound"
+      src="./assets/flipcard-91468.mp3"
+      preload="auto"
+    ></audio>
   </body>
 </html>
