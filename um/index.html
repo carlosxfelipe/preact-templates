@@ -208,13 +208,9 @@
 
           if (card.color === "black") return true; // coringa sempre pode
 
-          // Impede jogar +4 se tiver carta da cor atual
           if (card.value === "+4") {
             const hasColorCard = playerHand.some(
-              (c, i) =>
-                i !== cardIndex &&
-                c.color === activeColor &&
-                c.color !== "black"
+              (c) => c.color === activeColor && c.color !== "black"
             );
             if (hasColorCard) {
               alert(
@@ -244,8 +240,11 @@
 
         const playCard = (cardIndex) => {
           if (turn !== "player" || winner || awaitingColorChoice) return;
+
           const card = playerHand[cardIndex];
+
           if (!isValidMove(card)) return;
+
           const newHand = [...playerHand];
           newHand.splice(cardIndex, 1);
           setPlayerHand(newHand);
@@ -258,18 +257,27 @@
               setAiHand([...aiHand, ...drawn]);
               setDeck(deck.slice(4));
             }
-          } else {
-            setActiveColor(card.color);
-
-            if (card.value === "+2") {
-              const drawn = deck.slice(0, 2);
-              setAiHand([...aiHand, ...drawn]);
-              setDeck(deck.slice(2));
-            }
-
             checkForWinner("Você", newHand);
-            setTurn("ai");
+            return;
           }
+
+          setActiveColor(card.color);
+
+          if (card.value === "+2") {
+            const drawn = deck.slice(0, 2);
+            setAiHand([...aiHand, ...drawn]);
+            setDeck(deck.slice(2));
+            checkForWinner("Você", newHand);
+            return;
+          }
+
+          if (card.value === "skip" || card.value === "reverse") {
+            checkForWinner("Você", newHand);
+            return;
+          }
+
+          checkForWinner("Você", newHand);
+          setTurn("ai");
         };
 
         const pickColor = (color) => {
@@ -296,7 +304,9 @@
 
         const aiPlay = () => {
           if (winner) return;
+
           const validCardIndex = aiHand.findIndex(isValidMove);
+
           if (validCardIndex >= 0) {
             const card = aiHand[validCardIndex];
             const newHand = [...aiHand];
@@ -307,17 +317,24 @@
             if (card.color === "black") {
               const chosen = COLORS[Math.floor(Math.random() * COLORS.length)];
               setActiveColor(chosen);
+
               if (card.value === "+4") {
                 const drawn = deck.slice(0, 4);
-                setPlayerHand([...playerHand, ...drawn]);
+                setPlayerHand((prev) => [...prev, ...drawn]);
                 setDeck(deck.slice(4));
               }
             } else {
               setActiveColor(card.color);
+
               if (card.value === "+2") {
                 const drawn = deck.slice(0, 2);
-                setPlayerHand([...playerHand, ...drawn]);
+                setPlayerHand((prev) => [...prev, ...drawn]);
                 setDeck(deck.slice(2));
+              }
+
+              if (card.value === "skip" || card.value === "reverse") {
+                checkForWinner("IA", newHand);
+                return;
               }
             }
 
@@ -328,6 +345,7 @@
             setAiHand((prev) => [...prev, drawnCard]);
             setDeck(newDeck);
           }
+
           setTurn("player");
         };
 
@@ -341,12 +359,6 @@
           "div",
           { class: "w-full flex flex-col items-center px-2 sm:px-6" },
           [
-            // Linha indicadora de turno
-            h("div", {
-              class: `w-full h-2 bg-blue-500 animate-pulse absolute ${
-                turn === "player" ? "bottom-0" : "top-0"
-              } z-50`,
-            }),
             h(
               "div",
               { class: "w-full flex justify-between items-center mb-4 px-4" },
@@ -359,8 +371,19 @@
                 !winner &&
                   h(
                     "div",
-                    { class: "text-white text-lg flex items-center gap-2" },
+                    { class: "text-white text-lg flex items-center gap-3" },
                     [
+                      h(
+                        "div",
+                        {
+                          class:
+                            "px-2 py-1 rounded text-sm font-bold animate-pulse " +
+                            (turn === "player"
+                              ? "bg-blue-600 text-white"
+                              : "bg-red-600 text-white"),
+                        },
+                        turn === "player" ? "Seu turno" : "Turno da IA"
+                      ),
                       h("span", null, "Cor atual:"),
                       h("div", {
                         class: `w-5 h-5 rounded-full ${activeColor}`,
