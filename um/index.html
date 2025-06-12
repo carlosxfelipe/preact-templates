@@ -371,10 +371,14 @@
         };
 
         useEffect(() => {
-          if (turn === "ai" && !winner && !awaitingColorChoice) {
-            setTimeout(aiPlay, 1000);
-          }
-        }, [turn, awaitingColorChoice]);
+          const timeout = setTimeout(() => {
+            if (turn === "ai" && !winner && !awaitingColorChoice) {
+              aiPlay();
+            }
+          }, 1000);
+
+          return () => clearTimeout(timeout);
+        }, [turn, awaitingColorChoice, aiHand.length, deck.length]);
 
         return h(
           "div",
