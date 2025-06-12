@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#075E54" />
     <title>UM Game</title>
     <script src="https://unpkg.com/preact@10.15.1/dist/preact.umd.js"></script>
     <script src="https://unpkg.com/preact@10.15.1/hooks/dist/hooks.umd.js"></script>
@@ -65,17 +66,35 @@
       body {
         font-family: "Fredoka", sans-serif;
       }
+      .ai-hand {
+        display: flex;
+        justify-content: center;
+        position: relative;
+      }
+
+      .ai-hand .um-card {
+        margin-left: -60px;
+        z-index: 0;
+        transition: transform 0.2s;
+      }
+
       @media (max-width: 640px) {
         .um-card {
           width: 80px;
-          height: 120px;
+          /* height: 120px; */
+          height: 80px;
           font-size: 1.5rem;
         }
 
         .large-card {
           width: 100px;
-          height: 150px;
+          /* height: 150px; */
+          height: 100px;
           font-size: 2rem;
+        }
+
+        .ai-hand .um-card {
+          margin-left: -40px;
         }
       }
     </style>
@@ -427,9 +446,15 @@
               ),
             h(
               "div",
-              { class: "flex justify-center mb-6 flex-wrap" },
+              { class: "ai-hand mb-6" },
               aiHand.map((_, i) =>
-                h(Card, { key: i, color: "black", value: "", hidden: true })
+                h(Card, {
+                  key: i,
+                  color: "black",
+                  value: "",
+                  hidden: true,
+                  style: `z-index: ${i};`,
+                })
               )
             ),
 
