@@ -108,8 +108,18 @@
         return deck;
       };
 
-      const Card = ({ color, value, onClick, hidden, large }) =>
-        h(
+      const cardLabels = {
+        skip: "Pular",
+        reverse: "Inverter",
+        wild: "Coringa",
+      };
+
+      const Card = ({ color, value, onClick, hidden, large }) => {
+        const label = cardLabels[value] || value;
+
+        const isShort = String(label).length <= 2;
+
+        return h(
           "div",
           {
             class: `um-card ${hidden ? "back" : color} ${
@@ -117,8 +127,19 @@
             } m-1`,
             onClick,
           },
-          hidden ? "" : value
+          hidden
+            ? ""
+            : h(
+                "span",
+                {
+                  class: isShort
+                    ? "text-4xl sm:text-5xl"
+                    : "text-xl sm:text-2xl text-center leading-tight",
+                },
+                label
+              )
         );
+      };
 
       const ColorPicker = ({ onPick }) =>
         h(
@@ -180,6 +201,22 @@
           const top = topCard;
 
           if (card.color === "black") return true; // coringa sempre pode
+
+          // Impede jogar +4 se tiver carta da cor atual
+          if (card.value === "+4") {
+            const hasColorCard = playerHand.some(
+              (c, i) =>
+                i !== cardIndex &&
+                c.color === activeColor &&
+                c.color !== "black"
+            );
+            if (hasColorCard) {
+              alert(
+                "Você só pode jogar +4 se não tiver nenhuma carta da cor atual."
+              );
+              return;
+            }
+          }
 
           const sameColor = card.color === activeColor;
           const sameType = card.value === top.value;
