@@ -76,7 +76,7 @@
   <body
     class="bg-green-700 min-h-screen flex flex-col items-center justify-between py-6"
   >
-    <div id="app" class="w-full max-w-4xl mx-auto"></div>
+    <div id="app" class="w-full max-w-6xl mx-auto"></div>
 
     <script>
       const { h, render } = preact;
@@ -152,7 +152,13 @@
                 class: `um-card ${color}`,
                 onClick: () => onPick(color),
               },
-              color[0].toUpperCase()
+              h(
+                "span",
+                {
+                  class: "text-xl sm:text-2xl text-center leading-tight",
+                },
+                colorNames[color]
+              )
             )
           )
         );
@@ -335,6 +341,12 @@
           "div",
           { class: "w-full flex flex-col items-center px-2 sm:px-6" },
           [
+            // Linha indicadora de turno
+            h("div", {
+              class: `w-full h-2 bg-blue-500 animate-pulse absolute ${
+                turn === "player" ? "bottom-0" : "top-0"
+              } z-50`,
+            }),
             h(
               "div",
               { class: "w-full flex justify-between items-center mb-4 px-4" },
