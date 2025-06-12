@@ -7,6 +7,10 @@
     <script src="https://unpkg.com/preact@10.15.1/dist/preact.umd.js"></script>
     <script src="https://unpkg.com/preact@10.15.1/hooks/dist/hooks.umd.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       .um-card {
         width: 120px;
@@ -57,6 +61,9 @@
         width: 140px;
         height: 210px;
         font-size: 3rem;
+      }
+      body {
+        font-family: "Fredoka", sans-serif;
       }
       @media (max-width: 640px) {
         .um-card {
@@ -133,7 +140,7 @@
                 "span",
                 {
                   class: isShort
-                    ? "text-4xl sm:text-5xl"
+                    ? "text-5xl sm:text-6xl"
                     : "text-xl sm:text-2xl text-center leading-tight",
                 },
                 label
@@ -271,8 +278,15 @@
             return;
           }
 
-          if (card.value === "skip" || card.value === "reverse") {
+          if (card.value === "skip") {
             checkForWinner("Você", newHand);
+            setTurn("player");
+            return;
+          }
+
+          if (card.value === "reverse") {
+            checkForWinner("Você", newHand);
+            setTurn("player");
             return;
           }
 
@@ -332,8 +346,15 @@
                 setDeck(deck.slice(2));
               }
 
-              if (card.value === "skip" || card.value === "reverse") {
+              if (card.value === "skip") {
                 checkForWinner("IA", newHand);
+                setTurn("ai");
+                return;
+              }
+
+              if (card.value === "reverse") {
+                checkForWinner("IA", newHand);
+                setTurn("ai");
                 return;
               }
             }
