@@ -3,11 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#15803D" />
+    <!-- <meta name="theme-color" content="#15803D" /> -->
+    <meta
+      name="theme-color"
+      content="#15803D"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0f172a"
+      media="(prefers-color-scheme: dark)"
+    />
     <title>UM Game</title>
     <script src="https://unpkg.com/preact@10.15.1/dist/preact.umd.js"></script>
     <script src="https://unpkg.com/preact@10.15.1/hooks/dist/hooks.umd.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "media",
+      };
+    </script>
     <link
       href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap"
       rel="stylesheet"
@@ -100,7 +115,7 @@
     </style>
   </head>
   <body
-    class="bg-green-700 min-h-screen flex flex-col items-center justify-between py-6"
+    class="bg-green-700 dark:bg-[#0f172a] min-h-screen flex flex-col items-center justify-between py-6"
   >
     <div id="app" class="w-full max-w-6xl mx-auto"></div>
 
@@ -352,6 +367,11 @@
             setAiHand(newHand);
             setDiscardPile((prev) => [...prev, card]);
 
+            if (newHand.length === 1) {
+              const warnAudio = document.getElementById("warning-sound");
+              if (warnAudio) warnAudio.play();
+            }
+
             if (card.color === "black") {
               const chosen = COLORS[Math.floor(Math.random() * COLORS.length)];
               setActiveColor(chosen);
@@ -525,6 +545,11 @@
     <audio
       id="draw-sound"
       src="./assets/flipcard-91468.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="warning-sound"
+      src="./assets/warning-sound-6686.mp3"
       preload="auto"
     ></audio>
   </body>
