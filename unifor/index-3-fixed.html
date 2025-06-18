@@ -106,7 +106,12 @@
               "span",
               { class: "flex items-center text-2xl font-bold tracking-wide" },
               h(UniforLogo, { height: isMobile ? 30 : 40 }),
-              !isMobile && h("span", { class: "ml-2" }, "Online")
+              !isMobile &&
+                h(
+                  "span",
+                  { class: "ml-2 text-base font-normal tracking-normal" },
+                  "Online"
+                )
             ),
             h(
               "ul",
