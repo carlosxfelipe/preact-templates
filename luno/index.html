@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LUNO - Research de Fundos Imobiliários</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+    />
+    <script src="https://unpkg.com/preact@latest/dist/preact.min.js"></script>
+    <script src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+      body {
+        font-family: "Manrope", sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+        background-color: white;
+        border-radius: 12px;
+        max-width: 450px;
+        margin: 40px auto;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #002060;
+        margin-bottom: 10px;
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+
+      p {
+        color: #343434;
+        text-align: center;
+        font-size: 1rem;
+      }
+
+      input,
+      button {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 6px;
+        border: 1px solid #dbe3f4;
+        font-size: 1rem;
+      }
+
+      button {
+        background-color: #0079d6;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #0e289c;
+      }
+
+      .payment-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #dbe3f4;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .payment-option i {
+        font-size: 1.5rem;
+        margin-right: 10px;
+      }
+
+      .price-highlight {
+        background-color: #eef4ff;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #dbe3f4;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .price-highlight p {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #002060;
+      }
+
+      .price-highlight span {
+        color: #0079d6;
+      }
+      .back-button {
+        background-color: #e0e0e0;
+        color: #343434;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .back-button:hover {
+        background-color: #c0c0c0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      const { h, render } = preact;
+      const { useState, useEffect } = preactHooks;
+
+      function App() {
+        const [email, setEmail] = useState("");
+        const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+        const [selectedPayment, setSelectedPayment] = useState(null);
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          setShowPaymentOptions(true);
+        };
+
+        const handlePaymentSelection = (method) => {
+          setSelectedPayment(method);
+
+          if (method === "pix") {
+            setTimeout(() => {
+              new QRCode(document.getElementById("qrcode"), {
+                text: "https://github.com/carlosxfelipe",
+                width: 200,
+                height: 200,
+                colorDark: "#0079d6",
+                colorLight: "#ffffff",
+              });
+            }, 0);
+          }
+        };
+
+        const handleBack = () => {
+          setSelectedPayment(null);
+          document.getElementById("qrcode").innerHTML = ""; // Limpa o QR Code se houver
+        };
+
+        const Logo = h(
+          "svg",
+          {
+            width: "120",
+            height: "120",
+            viewBox: "0 0 67.733328 67.733329",
+            xmlns: "http://www.w3.org/2000/svg",
+            style: { color: "#0079d6", marginBottom: "20px" },
+          },
+          [
+            h("circle", {
+              cx: "33.866669",
+              cy: "-33.866665",
+              r: "33.866665",
+              transform: "scale(1,-1)",
+              fill: "currentColor",
+            }),
+            h("circle", {
+              cx: "-33.866669",
+              cy: "33.866665",
+              r: "14.816667",
+              transform: "scale(-1,1)",
+              fill: "#ffffff",
+            }),
+          ]
+        );
+
+        return h(
+          "div",
+          { className: "container" },
+          Logo,
+          h("h1", null, "LUNO"),
+          h(
+            "p",
+            null,
+            "Relatórios exclusivos e detalhados sobre Fundos Imobiliários. Cadastre-se e faça parte da nossa comunidade premium por assinatura."
+          ),
+          h(
+            "div",
+            { className: "price-highlight" },
+            h("p", null, "Plano Anual: ", h("span", null, "R$ 24,90 por mês")),
+            h(
+              "p",
+              null,
+              "(Faturado anualmente: ",
+              h("span", null, "R$ 298,80"),
+              ")"
+            )
+          ),
+          !showPaymentOptions &&
+            h(
+              "form",
+              { onSubmit: handleSubmit },
+              h("input", {
+                type: "email",
+                value: email,
+                onInput: (e) => setEmail(e.target.value),
+                placeholder: "Digite seu e-mail",
+                required: true,
+              }),
+              h("button", { type: "submit" }, "Avançar para pagamento")
+            ),
+          showPaymentOptions &&
+            !selectedPayment &&
+            h(
+              "div",
+              { className: "payment-options" },
+              h("p", null, "Escolha um método de pagamento:"),
+              h(
+                "div",
+                {
+                  className: "payment-option",
+                  onClick: () => handlePaymentSelection("credit-card"),
+                },
+                h("i", { className: "bi bi-credit-card" }),
+                h("span", null, "Cartão de Crédito")
+              ),
+              h(
+                "div",
+                {
+                  className: "payment-option",
+                  onClick: () => handlePaymentSelection("pix"),
+                },
+                h("i", { className: "bi bi-currency-exchange" }),
+                h("span", null, "Pix")
+              )
+            ),
+          h(
+            "p",
+            {
+              style: {
+                fontSize: "0.9rem",
+                color: "#666",
+                marginTop: "10px",
+                textAlign: "center",
+              },
+            },
+            "Você pode cancelar a compra em até 7 dias corridos após o pagamento, conforme Art. 49 do CDC."
+          ),
+
+          selectedPayment &&
+            h(
+              "button",
+              { className: "back-button", onClick: handleBack },
+              "Voltar"
+            ),
+          selectedPayment === "pix" &&
+            h("div", { id: "qrcode", style: { marginTop: "20px" } }),
+          selectedPayment === "credit-card" &&
+            h(
+              "div",
+              null,
+              h("input", {
+                type: "text",
+                placeholder: "Nome no cartão",
+                required: true,
+              }),
+              h("input", {
+                type: "text",
+                placeholder: "Número do cartão",
+                required: true,
+              }),
+              h("input", {
+                type: "text",
+                placeholder: "Data de validade (MM/AA)",
+                required: true,
+              }),
+              h("input", {
+                type: "text",
+                placeholder: "Código de segurança (CVV)",
+                required: true,
+              }),
+              h("button", { type: "button" }, "Confirmar Pagamento")
+            )
+        );
+      }
+
+      render(h(App), document.getElementById("app"));
+    </script>
+  </body>
+</html>
