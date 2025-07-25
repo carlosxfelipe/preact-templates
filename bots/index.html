@@ -284,17 +284,25 @@
                 class="text-white font-bold text-lg mr-2 px-2 py-1 rounded hover:bg-[#064e3b] focus:outline-none transition"
                 title="Voltar para a lista"
               >
-                ← Voltar
+                <span class="block md:hidden">←</span>
+                <span class="hidden md:inline">← Voltar</span>
               </button>
               <img
                 src="${bot.image}"
                 alt="${bot.name}"
                 class="w-10 h-10 rounded-full object-cover"
               />
-              <div class="flex flex-col">
-                <div class="text-base font-semibold">${bot.name}</div>
-                <span class="text-sm opacity-80">${bot
-                  .description}</span>
+              <div class="flex flex-col overflow-hidden">
+                <div
+                  class="text-base font-semibold truncate max-w-[calc(100vw-100px)]"
+                >
+                  ${bot.name}
+                </div>
+                <span
+                  class="text-sm opacity-80 truncate max-w-[calc(100vw-100px)]"
+                >
+                  ${bot.description}
+                </span>
               </div>
             </div>
 
