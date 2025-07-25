@@ -5,15 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#075E54" />
     <title>GPTS PortalCompras</title>
+
+    <script>
+      tailwind.config = {
+        darkMode: "media",
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/preact@latest/dist/preact.umd.js"></script>
     <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
     <script
       src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"
     ></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
+      html {
+        color-scheme: light dark;
+      }
+
       body {
         font-family: sans-serif;
         margin: 0;
@@ -25,7 +35,9 @@
     </style>
   </head>
 
-  <body class="w-full">
+  <body
+    class="w-full bg-[#f0f2f5] dark:bg-[#121b22] text-black dark:text-white"
+  >
     <div
       id="app"
       class="w-full relative flex flex-col"
@@ -143,30 +155,29 @@
 
         return html`
           <div
-            class="flex flex-col items-center bg-[#ece5dd] text-black p-4 min-h-screen overflow-y-auto"
+            class="flex flex-col items-center bg-[#f0f2f5] dark:bg-[#121b22] text-black dark:text-white p-4 min-h-screen overflow-y-auto"
           >
             <h1 class="text-2xl font-bold mb-6 text-center">
-              CONSULTAS<br /><span class="text-green-700"
+              CONSULTAS<br /><span class="text-green-700 dark:text-green-400"
               >GPTS PORTALCOMPRAS</span>
             </h1>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-4xl">
-              ${bots.map(
-                (bot) =>
-                  html`
-                    <div
-                      class="flex items-center gap-3 bg-white p-4 rounded-lg shadow cursor-pointer hover:bg-gray-100"
-                      onClick="${() => onSelect(bot)}"
-                    >
-                      <img
-                        src="${bot.image}"
-                        alt="${bot.name}"
-                        class="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div class="text-sm">
-                        <div class="font-semibold">${bot.name}</div>
-                      </div>
+              ${bots.map((bot) =>
+                html`
+                  <div
+                    class="flex items-center gap-3 bg-white dark:bg-[#1e2a30] text-black dark:text-white p-4 rounded-lg shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-[#2a3942]"
+                    onClick="${() => onSelect(bot)}"
+                  >
+                    <img
+                      src="${bot.image}"
+                      alt="${bot.name}"
+                      class="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div class="text-sm">
+                      <div class="font-semibold">${bot.name}</div>
                     </div>
-                  `,
+                  </div>
+                `
               )}
             </div>
           </div>
@@ -179,10 +190,8 @@
         const [loading, setLoading] = useState(false);
         const messagesEndRef = useRef(null);
 
-        const hour = new Date().getHours();
-        const isNight = hour >= 18 || hour < 5;
-
         const getGreeting = () => {
+          const hour = new Date().getHours();
           if (hour >= 5 && hour < 12) return "Bom dia!";
           if (hour >= 12 && hour < 18) return "Boa tarde!";
           return "Boa noite!";
@@ -204,7 +213,6 @@
 
         const sendMessage = async () => {
           if (!input.trim()) return;
-
           const userMsg = {
             sender: "user",
             text: input,
@@ -235,21 +243,21 @@
               data.candidates?.[0]?.content?.parts?.[0]?.text ||
               "Desculpe, não consegui responder.";
 
-            setMessages((
-              prev,
-            ) => [...prev, {
-              sender: "bot",
-              text: reply,
-              timestamp: new Date(),
-            }]);
+            setMessages(
+              (prev) => [...prev, {
+                sender: "bot",
+                text: reply,
+                timestamp: new Date(),
+              }],
+            );
           } catch (e) {
-            setMessages((
-              prev,
-            ) => [...prev, {
-              sender: "bot",
-              text: "Erro ao conectar com o servidor.",
-              timestamp: new Date(),
-            }]);
+            setMessages(
+              (prev) => [...prev, {
+                sender: "bot",
+                text: "Erro ao conectar com o servidor.",
+                timestamp: new Date(),
+              }],
+            );
           } finally {
             setLoading(false);
           }
@@ -257,18 +265,17 @@
 
         function linkify(text) {
           const urlRegex = /(\bhttps?:\/\/[^\s)>\]]+)/g;
-          return text.replace(urlRegex, (url) => {
-            return `<a href="${url}" class="underline text-blue-600" target="_blank" rel="noopener noreferrer">${url}</a>`;
-          });
+          return text.replace(
+            urlRegex,
+            (url) =>
+              `<a href="${url}" class="underline text-blue-600" target="_blank" rel="noopener noreferrer">${url}</a>`,
+          );
         }
 
         return html`
-          <div class="${`flex flex-col w-full h-[var(--app-height)] ${
-            isNight
-              ? "bg-[#121B22] text-white"
-              : "bg-[#ece5dd] text-black"
-          }`}">
-            <!-- Header -->
+          <div
+            class="flex flex-col w-full h-[var(--app-height)] bg-[#f0f2f5] dark:bg-[#121b22] text-black dark:text-white"
+          >
             <div
               class="bg-[#075E54] text-white px-4 py-3 shadow flex items-center gap-3 w-full shrink-0"
             >
@@ -284,22 +291,17 @@
               </div>
             </div>
 
-            <!-- Chat Area -->
             <div
               class="flex-1 overflow-y-auto px-2 pt-3 pb-24 scroll-pb-24 space-y-2 w-full"
             >
               ${messages.map((msg) => {
                 const isUser = msg.sender === "user";
-                const bubbleStyle = isUser
-                  ? isNight
-                    ? "bg-[#005C4B] text-white"
-                    : "bg-[#dcf8c6] text-black"
-                  : isNight
-                  ? "bg-[#202C33] text-white"
-                  : "bg-white text-black";
                 const bubbleClass = isUser
                   ? "rounded-[18px] rounded-br-none"
                   : "rounded-[18px] rounded-bl-none";
+                const bubbleStyle = isUser
+                  ? "bg-[#dcf8c6] dark:bg-[#005c4b] text-black dark:text-white"
+                  : "bg-white dark:bg-[#202c33] text-black dark:text-white";
 
                 return html`
                   <div class="flex ${isUser
@@ -332,14 +334,11 @@
               <div ref="${messagesEndRef}"></div>
             </div>
 
-            <!-- Input Bar -->
-            <div class="${`p-2 flex items-center gap-2 w-full z-10 ${
-              isNight ? "bg-[#1E2A30]" : "bg-[#f0f0f0]"
-            } sticky bottom-0 pb-[calc(env(safe-area-inset-bottom)+8px)]`}">
+            <div
+              class="p-2 flex items-center gap-2 w-full z-10 bg-[#f0f0f0] dark:bg-[#1e2a30] sticky bottom-0 pb-[calc(env(safe-area-inset-bottom)+8px)]"
+            >
               <input
-                class="flex-1 rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none ${isNight
-                  ? "bg-[#263238] text-white"
-                  : "text-black"}"
+                class="flex-1 rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none bg-white dark:bg-[#263238] text-black dark:text-white"
                 placeholder="Digite uma mensagem"
                 value="${input}"
                 onInput="${(e) => setInput(e.target.value)}"
